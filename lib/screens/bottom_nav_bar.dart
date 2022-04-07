@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+import 'package:singularity/constants/colors.dart';
+import 'package:singularity/screens/home_screen.dart';
+import 'package:singularity/screens/planets_screen.dart';
+import 'package:singularity/screens/solar_system_screen.dart';
+
+class BottomNavigation extends StatefulWidget {
+  const BottomNavigation({Key? key}) : super(key: key);
+
+  @override
+  State<BottomNavigation> createState() => _BottomNavigationState();
+}
+
+class _BottomNavigationState extends State<BottomNavigation> {
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> screens = <Widget>[
+    HomeScreen(),
+    PlanetsScreen(),
+    PlanetsScreen()
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: screens.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: primaryColor,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.public_outlined,
+            ),
+            label: 'Planets',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.explore_outlined,
+            ),
+            label: 'Explore',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        unselectedItemColor: Colors.white,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}

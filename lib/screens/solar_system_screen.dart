@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/planet_detail_screen.dart';
 import 'package:singularity/widgets/dash_line_painter.dart';
 
@@ -26,7 +27,7 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: primaryColor,
         appBar: AppBar(
           title: const Text(
             'Solar System',
@@ -46,6 +47,7 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
               height: MediaQuery.of(context).size.height,
             ),
             SingleChildScrollView(
+              reverse: true,
               physics: const BouncingScrollPhysics(),
               child: CustomPaint(
                 painter: DashLinePainter(),
@@ -102,20 +104,27 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
                                           const TextStyle(color: Colors.white),
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.of(context).push(
+                                  Align(
+                                    alignment: (index % 2 == 0)
+                                        ? Alignment.centerRight
+                                        : Alignment.centerLeft,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PlanetDetailScreen(
-                                                      planetIndex: 0)));
-                                    },
-                                    child: Hero(
-                                      tag: index,
-                                      child: Transform.scale(
-                                        scale: planetScale(index),
-                                        child: Image.asset(
-                                          'assets/$index.png',
+                                            builder: (context) =>
+                                                PlanetDetailScreen(
+                                                    planetIndex: 0),
+                                          ),
+                                        );
+                                      },
+                                      child: Hero(
+                                        tag: index,
+                                        child: Transform.scale(
+                                          scale: planetScale(index),
+                                          child: Image.asset(
+                                            'assets/$index.png',
+                                          ),
                                         ),
                                       ),
                                     ),
