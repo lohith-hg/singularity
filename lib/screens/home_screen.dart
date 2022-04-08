@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/solar_system_screen.dart';
 
@@ -72,13 +73,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const <Widget>[
+                    children: <Widget>[
                       Text('Explore Solar System',
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
-                              fontSize: 22.0)),
-                      SizedBox(
+                              fontSize: 22.0,
+                              fontFamily:
+                                  GoogleFonts.titilliumWeb().fontFamily)),
+                      const SizedBox(
                         height: 3.0,
                       ),
                     ],

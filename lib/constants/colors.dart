@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+const secondaryColor = Colors.orange;
 MaterialColor primaryColor = MaterialColor(0xFF000000, color);
 
 Map<int, Color> color = {

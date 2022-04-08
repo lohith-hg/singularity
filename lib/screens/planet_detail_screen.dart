@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
-import 'package:singularity/data/data.dart';
+import 'package:singularity/data/planets_data.dart';
 import 'package:singularity/data/planet.dart';
 import 'package:singularity/widgets/image_card.dart';
 
@@ -39,20 +42,35 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
       backgroundColor: primaryColor,
       appBar: AppBar(
         centerTitle: true,
-        title: Text(_planet.name),
+        title: Text(
+          _planet.name,
+          style: TextStyle(fontFamily: GoogleFonts.titilliumWeb().fontFamily),
+        ),
       ),
-      body: ListView(children: [
+      body: ListView(physics: const BouncingScrollPhysics(), children: [
         Column(
           children: [
             RotationTransition(
-                alignment: Alignment.center,
-                turns: _animationController,
-                child: Hero(tag: (3), child: Image.asset(_planet.imgUrl[0]))),
+              alignment: Alignment.center,
+              turns: _animationController,
+              child: Hero(
+                tag: widget.planetIndex,
+                child: Transform.scale(
+                  scale: planetScale(widget.planetIndex),
+                  child: Image.asset(
+                    _planet.imgUrl[0],
+                  ),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 'Image Credits : ${_planet.credits}',
-                style: TextStyle(color: Colors.grey.shade200, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.grey.shade200,
+                    fontSize: 14,
+                    fontFamily: GoogleFonts.titilliumWeb().fontFamily),
               ),
             )
           ],
@@ -66,45 +84,121 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text(_planet.name,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        color: secondaryColor,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text('Length of year : ${_planet.lengthOfYear}',
-                    style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text('Number of moons : ${_planet.noOfMoons}',
-                    style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text('Distance from sun : ${_planet.distanceFromSun}',
-                    style: const TextStyle(color: Colors.white, fontSize: 16)),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Text('Gravity : ${_planet.gravity}',
-                    style: const TextStyle(color: Colors.white, fontSize: 16)),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Text('About',
                     style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold)),
+                        fontSize: 18,
+                        fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text('About',
+                    style: TextStyle(
+                        color: secondaryColor,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
               ),
               Text(_planet.discription,
-                  style: const TextStyle(color: Colors.white, fontSize: 16)),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text('Things You Should Know About ${_planet.name}',
+                    style: TextStyle(
+                        color: secondaryColor,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
+              ),
+              ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _planet.facts.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          '${_planet.facts[index].id}.) ${_planet.facts[index].heading}',
+                          style: TextStyle(
+                              color: secondaryColor,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 23,
+                              fontFamily:
+                                  GoogleFonts.titilliumWeb().fontFamily)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Text(_planet.facts[index].discription,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontFamily:
+                                    GoogleFonts.titilliumWeb().fontFamily)),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         )
       ]),
     );
+  }
+
+  double planetScale(int index) {
+    if (index == 0) {
+      return 0.7;
+    } else if (index == 1) {
+      return 0.8;
+    } else if (index == 2) {
+      return 1;
+    } else if (index == 3) {
+      return 1;
+    } else if (index == 4) {
+      return 1.5;
+    } else if (index == 5) {
+      return 1.5;
+    } else if (index == 6) {
+      return 1;
+    } else {
+      return 0.8;
+    }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/planet_detail_screen.dart';
 import 'package:singularity/widgets/dash_line_painter.dart';
@@ -48,16 +49,16 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
             ),
             SingleChildScrollView(
               reverse: true,
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               child: CustomPaint(
                 painter: DashLinePainter(),
                 child: GridView.builder(
                   itemCount: planets.length,
                   reverse: true,
                   shrinkWrap: true,
-                  physics: const BouncingScrollPhysics(),
+                  physics: const ClampingScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1, childAspectRatio: 2.3),
+                      crossAxisCount: 1, childAspectRatio: 2.6),
                   itemBuilder: (BuildContext context, int index) {
                     return (index == 0)
                         ? Row(
@@ -68,20 +69,23 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
                                 child: Stack(
                                   children: [
                                     Transform.scale(
-                                      scale: 1.2,
+                                      scale: 1.25,
                                       child: Image.asset(
                                         'assets/sun.png',
                                       ),
                                     ),
                                     Positioned(
-                                      right: 150,
+                                      right: 130,
                                       bottom: 80,
                                       child: Text(
                                         planets[index],
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold),
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily:
+                                                GoogleFonts.titilliumWeb()
+                                                    .fontFamily),
                                       ),
                                     ),
                                   ],
@@ -97,11 +101,15 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
                               Stack(
                                 children: [
                                   Positioned(
-                                    right: 60,
+                                    right: planetTextPadding(index),
+                                    top: -8,
                                     child: Text(
                                       planets[index],
-                                      style:
-                                          const TextStyle(color: Colors.white),
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.white,
+                                          fontFamily: GoogleFonts.titilliumWeb()
+                                              .fontFamily),
                                     ),
                                   ),
                                   Align(
@@ -114,7 +122,7 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 PlanetDetailScreen(
-                                                    planetIndex: 0),
+                                                    planetIndex: (index - 1)),
                                           ),
                                         );
                                       },
@@ -145,11 +153,11 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
 
   double planetScale(int index) {
     if (index == 1) {
-      return 0.5;
+      return 0.58;
     } else if (index == 2) {
-      return 0.6;
-    } else if (index == 3) {
       return 0.7;
+    } else if (index == 3) {
+      return 0.8;
     } else if (index == 4) {
       return 1;
     } else if (index == 5) {
@@ -157,29 +165,49 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
     } else if (index == 6) {
       return 1.5;
     } else if (index == 7) {
-      return 1;
+      return 1.3;
     } else {
       return 0.8;
     }
   }
 
-  double planetheight(int index) {
+  double planetTextPadding(int index) {
     if (index == 1) {
-      return 0.5;
+      return 42;
     } else if (index == 2) {
-      return 0.6;
+      return 55;
     } else if (index == 3) {
-      return 0.7;
+      return 80;
     } else if (index == 4) {
-      return 1;
+      return 85;
     } else if (index == 5) {
-      return 1.5;
+      return 45;
     } else if (index == 6) {
-      return 1.5;
+      return 75;
     } else if (index == 7) {
-      return 1;
+      return 80;
     } else {
-      return 0.8;
+      return 45;
     }
   }
+
+  // EdgeInsetsGeometry planetpadding(int index) {
+  //   if (index == 1) {
+  //     return const EdgeInsets.only(left: 15);
+  //   } else if (index == 2) {
+  //     return const EdgeInsets.only(right: 10);
+  //   } else if (index == 3) {
+  //     return const EdgeInsets.only(left: 10);
+  //   } else if (index == 4) {
+  //     return const EdgeInsets.only(right: 10);
+  //   } else if (index == 5) {
+  //     return const EdgeInsets.only(left: 10);
+  //   } else if (index == 6) {
+  //     return const EdgeInsets.only(right: 10);
+  //   } else if (index == 7) {
+  //     return const EdgeInsets.only(left: 10);
+  //   } else {
+  //     return const EdgeInsets.only(right: 10);
+  //   }
+  // }
 }

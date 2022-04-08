@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
-import 'package:singularity/data/data.dart';
+import 'package:singularity/data/planets_data.dart';
 import 'package:singularity/screens/planet_detail_screen.dart';
 
 class PlanetsScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
     return Scaffold(
       backgroundColor: primaryColor,
       body: ListView.builder(
+          physics: const BouncingScrollPhysics(),
           itemCount: planets.length,
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
@@ -31,7 +33,8 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                 padding: const EdgeInsets.all(10.0),
                 width: double.infinity,
                 //height: MediaQuery.of(context).size.height / 2.5,
-                height: 320,
+                height: MediaQuery.of(context).size.height / 3.3,
+
                 child: Stack(
                   children: [
                     Positioned.fill(
@@ -44,9 +47,12 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                           padding: const EdgeInsets.only(bottom: 15),
                           child: Hero(
                             tag: (index + 3),
-                            child: Image.asset(
-                              planets[index].imgUrl[0],
-                              fit: BoxFit.fill,
+                            child: Transform.scale(
+                              scale: planetScale(index),
+                              child: Image.asset(
+                                planets[index].imgUrl[0],
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                         ),
@@ -77,10 +83,12 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 25),
                               child: Text(planets[index].name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 26.0)),
+                                      fontSize: 26.0,
+                                      fontFamily: GoogleFonts.titilliumWeb()
+                                          .fontFamily)),
                             ),
                             const SizedBox(
                               height: 3.0,
@@ -95,5 +103,25 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
             );
           }),
     );
+  }
+
+  double planetScale(int index) {
+    if (index == 0) {
+      return 0.85;
+    } else if (index == 1) {
+      return 0.9;
+    } else if (index == 2) {
+      return 1;
+    } else if (index == 3) {
+      return 1;
+    } else if (index == 4) {
+      return 1.5;
+    } else if (index == 5) {
+      return 1.5;
+    } else if (index == 6) {
+      return 1;
+    } else {
+      return 0.8;
+    }
   }
 }
