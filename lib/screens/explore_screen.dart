@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/data/planets_data.dart';
 import 'package:singularity/screens/planet_detail_screen.dart';
+import 'package:singularity/screens/universe_theories_screen.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({Key? key}) : super(key: key);
@@ -21,11 +22,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
         children: [
           InkWell(
             onTap: () {
-              // Navigator.of(context).push(
-              //   MaterialPageRoute(
-              //     builder: (context) => PlanetDetailScreen(planetIndex: index),
-              //   ),
-              // );
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const UniverseTheories(),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(10.0),
