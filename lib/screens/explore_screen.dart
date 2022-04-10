@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
-import 'package:singularity/data/planets_data.dart';
-import 'package:singularity/screens/planet_detail_screen.dart';
 import 'package:singularity/screens/universe_theories_screen.dart';
+import 'package:singularity/widgets/custom_dialog.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({Key? key}) : super(key: key);
@@ -98,6 +97,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               //     builder: (context) => PlanetDetailScreen(planetIndex: index),
               //   ),
               // );
+              _showDialog();
             },
             child: Container(
               padding: const EdgeInsets.all(10.0),
@@ -166,6 +166,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  _showDialog() {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDialog(
+          displayText: 'Space Conspiracy Theories Coming soon',
+          buttonText: 'OK',
+          buttonWidth: 0.4,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        );
+      },
     );
   }
 }

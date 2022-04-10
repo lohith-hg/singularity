@@ -1,12 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/data/planets_data.dart';
 import 'package:singularity/data/planet.dart';
-import 'package:singularity/widgets/image_card.dart';
 
+// ignore: must_be_immutable
 class PlanetDetailScreen extends StatefulWidget {
   int planetIndex;
   PlanetDetailScreen({Key? key, required this.planetIndex}) : super(key: key);
@@ -50,19 +48,28 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
       body: ListView(physics: const BouncingScrollPhysics(), children: [
         Column(
           children: [
-            RotationTransition(
-              alignment: Alignment.center,
-              turns: _animationController,
-              child: Hero(
-                tag: widget.planetIndex,
-                child: Transform.scale(
-                  scale: planetScale(widget.planetIndex),
-                  child: Image.asset(
-                    _planet.imgUrl[0],
-                  ),
+            Hero(
+              tag: widget.planetIndex,
+              child: Transform.scale(
+                scale: planetScale(widget.planetIndex),
+                child: Image.asset(
+                  _planet.imgUrl[planetImgIndex(widget.planetIndex)],
                 ),
               ),
             ),
+            // RotationTransition(
+            //   alignment: Alignment.center,
+            //   turns: _animationController,
+            //   child: Hero(
+            //     tag: widget.planetIndex,
+            //     child: Transform.scale(
+            //       scale: planetScale(widget.planetIndex),
+            //       child: Image.asset(
+            //         _planet.imgUrl[0],
+            //       ),
+            //     ),
+            //   ),
+            // ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
@@ -188,17 +195,37 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
     } else if (index == 1) {
       return 0.8;
     } else if (index == 2) {
-      return 1;
+      return 1.1;
     } else if (index == 3) {
-      return 1;
+      return 1.25;
     } else if (index == 4) {
-      return 1.5;
+      return 0.8;
     } else if (index == 5) {
       return 1.5;
     } else if (index == 6) {
-      return 1;
+      return 1.8;
     } else {
-      return 0.8;
+      return 0.9;
+    }
+  }
+
+  int planetImgIndex(int index) {
+    if (index == 0) {
+      return 0;
+    } else if (index == 1) {
+      return 0;
+    } else if (index == 2) {
+      return 0;
+    } else if (index == 3) {
+      return 0;
+    } else if (index == 4) {
+      return 1;
+    } else if (index == 5) {
+      return 0;
+    } else if (index == 6) {
+      return 0;
+    } else {
+      return 0;
     }
   }
 }

@@ -1,12 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/data/article.dart';
 import 'package:singularity/data/articles_data.dart';
-import 'package:singularity/data/planet.dart';
 
+// ignore: must_be_immutable
 class ArticleDetailScreen extends StatefulWidget {
   int articleIndex;
   ArticleDetailScreen({Key? key, required this.articleIndex}) : super(key: key);

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/bottom_nav_bar.dart';
-import 'package:singularity/screens/solar_system_screen.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(

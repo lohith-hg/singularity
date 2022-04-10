@@ -113,15 +113,15 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
     } else if (index == 2) {
       return 1;
     } else if (index == 3) {
-      return 1;
+      return 1.2;
     } else if (index == 4) {
       return 1.5;
     } else if (index == 5) {
       return 1.5;
     } else if (index == 6) {
-      return 1;
+      return 1.5;
     } else {
-      return 0.8;
+      return 1;
     }
   }
 }
