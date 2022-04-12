@@ -41,7 +41,7 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
         body: Stack(
           children: [
             Image.asset(
-              'assets/ivana-cajina-asuyh-_ZX54-unsplash.jpg',
+              'assets/space_background.png',
               alignment: Alignment.center,
               fit: BoxFit.cover,
               width: MediaQuery.of(context).size.width,
@@ -127,7 +127,7 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
                                         );
                                       },
                                       child: Hero(
-                                        tag: index,
+                                        tag: (index - 1),
                                         child: Transform.scale(
                                           scale: planetScale(index),
                                           child: Image.asset(
@@ -153,21 +153,21 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
 
   double planetScale(int index) {
     if (index == 1) {
-      return 0.58;
+      return 0.54;
     } else if (index == 2) {
-      return 0.7;
+      return 0.75;
     } else if (index == 3) {
-      return 0.8;
+      return 0.85;
     } else if (index == 4) {
-      return 1;
+      return 1.1;
     } else if (index == 5) {
       return 1.5;
     } else if (index == 6) {
-      return 1.5;
+      return 1.7;
     } else if (index == 7) {
       return 1.3;
     } else {
-      return 0.8;
+      return 0.87;
     }
   }
 
@@ -175,19 +175,19 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
     if (index == 1) {
       return 42;
     } else if (index == 2) {
-      return 55;
+      return 110;
     } else if (index == 3) {
-      return 80;
+      return 110;
     } else if (index == 4) {
-      return 85;
+      return 110;
     } else if (index == 5) {
       return 45;
     } else if (index == 6) {
-      return 75;
+      return 100;
     } else if (index == 7) {
       return 80;
     } else {
-      return 45;
+      return 100;
     }
   }
 

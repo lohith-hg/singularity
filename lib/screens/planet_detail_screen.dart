@@ -54,6 +54,7 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
                 scale: planetScale(widget.planetIndex),
                 child: Image.asset(
                   _planet.imgUrl[planetImgIndex(widget.planetIndex)],
+                  height: 300,
                 ),
               ),
             ),
@@ -191,21 +192,21 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
 
   double planetScale(int index) {
     if (index == 0) {
-      return 0.7;
+      return 0.9;
     } else if (index == 1) {
-      return 0.8;
+      return 1.35;
     } else if (index == 2) {
-      return 1.1;
+      return 1.45;
     } else if (index == 3) {
-      return 1.25;
+      return 1.8;
     } else if (index == 4) {
-      return 0.8;
+      return 0.95;
     } else if (index == 5) {
-      return 1.5;
+      return 1.7;
     } else if (index == 6) {
       return 1.8;
     } else {
-      return 0.9;
+      return 1.45;
     }
   }
 

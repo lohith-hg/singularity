@@ -46,7 +46,7 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 15),
                           child: Hero(
-                            tag: (index + 3),
+                            tag: (index),
                             child: Transform.scale(
                               scale: planetScale(index),
                               child: Image.asset(
@@ -107,19 +107,19 @@ class _PlanetsScreenState extends State<PlanetsScreen> {
 
   double planetScale(int index) {
     if (index == 0) {
-      return 0.85;
-    } else if (index == 1) {
       return 0.9;
-    } else if (index == 2) {
+    } else if (index == 1) {
       return 1;
+    } else if (index == 2) {
+      return 1.1;
     } else if (index == 3) {
-      return 1.2;
+      return 1.35;
     } else if (index == 4) {
       return 1.5;
     } else if (index == 5) {
       return 1.5;
     } else if (index == 6) {
-      return 1.5;
+      return 1.6;
     } else {
       return 1;
     }

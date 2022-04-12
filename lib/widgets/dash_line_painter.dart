@@ -18,7 +18,7 @@ class DashLinePainter extends CustomPainter {
 
     var venus = Path()
       ..moveTo(0, size.height / 0.7)
-      ..arcToPoint(Offset(size.width, size.height / 1.36),
+      ..arcToPoint(Offset(size.width, size.height / 1.34),
           radius: const Radius.circular(100), clockwise: true, rotation: 50);
 
     var earth = Path()

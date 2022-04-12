@@ -6,7 +6,7 @@ List<Article> universeArticles = [
     heading: 'Origin of the Universe',
     discription:
         'The universe is believed to have originated about 15 billion years ago as a dense, hot globule of gas expanding rapidly outward. At that time, the universe contained nothing but hydrogen and a small amount of helium. There were no stars and no planets. The first stars probably began to form out of hydrogen when the universe was about 100 million years old. This is how our Sun originated about 4.49 billion years ago.',
-    imgUrl: ['assets/nasa-rTZW4f02zY8-unsplash.jpg'],
+    imgUrl: ['assets/origin.png'],
     imgCredits: ['NASA'],
     paragraphs: [
       Paragraph(

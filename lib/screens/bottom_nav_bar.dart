@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/explore_screen.dart';
 import 'package:singularity/screens/home_screen.dart';
@@ -33,6 +34,14 @@ class _BottomNavigationState extends State<BottomNavigation> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: primaryColor,
+        selectedLabelStyle: TextStyle(
+            color: Colors.grey.shade200,
+            fontSize: 14,
+            fontFamily: GoogleFonts.titilliumWeb().fontFamily),
+        unselectedLabelStyle: TextStyle(
+            color: Colors.grey.shade200,
+            fontSize: 14,
+            fontFamily: GoogleFonts.titilliumWeb().fontFamily),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
