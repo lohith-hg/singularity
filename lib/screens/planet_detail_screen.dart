@@ -53,7 +53,7 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
               child: Transform.scale(
                 scale: planetScale(widget.planetIndex),
                 child: Image.asset(
-                  _planet.imgUrl[planetImgIndex(widget.planetIndex)],
+                  _planet.imgUrl[0],
                   height: 300,
                 ),
               ),
@@ -200,33 +200,13 @@ class _PlanetDetailScreenState extends State<PlanetDetailScreen>
     } else if (index == 3) {
       return 1.8;
     } else if (index == 4) {
-      return 0.95;
+      return 1.9;
     } else if (index == 5) {
       return 1.7;
     } else if (index == 6) {
       return 1.8;
     } else {
       return 1.45;
-    }
-  }
-
-  int planetImgIndex(int index) {
-    if (index == 0) {
-      return 0;
-    } else if (index == 1) {
-      return 0;
-    } else if (index == 2) {
-      return 0;
-    } else if (index == 3) {
-      return 0;
-    } else if (index == 4) {
-      return 1;
-    } else if (index == 5) {
-      return 0;
-    } else if (index == 6) {
-      return 0;
-    } else {
-      return 0;
     }
   }
 }

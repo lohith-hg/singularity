@@ -41,7 +41,7 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
         body: Stack(
           children: [
             Image.asset(
-              'assets/space_background.png',
+              'assets/space_background.jpg',
               alignment: Alignment.center,
               fit: BoxFit.cover,
               width: MediaQuery.of(context).size.width,
@@ -153,21 +153,21 @@ class _SolarSystemScreenState extends State<SolarSystemScreen> {
 
   double planetScale(int index) {
     if (index == 1) {
-      return 0.54;
+      return 0.6;
     } else if (index == 2) {
-      return 0.75;
+      return 0.72;
     } else if (index == 3) {
       return 0.85;
     } else if (index == 4) {
-      return 1.1;
+      return 1.05;
     } else if (index == 5) {
-      return 1.5;
+      return 1.45;
     } else if (index == 6) {
-      return 1.7;
+      return 1.65;
     } else if (index == 7) {
-      return 1.3;
+      return 1.2;
     } else {
-      return 0.87;
+      return 0.78;
     }
   }
 

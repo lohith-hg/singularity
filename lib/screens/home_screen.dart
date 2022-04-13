@@ -106,7 +106,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize: 18,
                       fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
               onTap: () {
-                launch('https://flutter.dev');
+                launch(
+                    'https://github.com/lohith-hg/singularity-privacy/blob/main/privacy-policy.md');
               },
             ),
             ListTile(
@@ -115,7 +116,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.grey.shade200,
                       fontSize: 18,
                       fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
-              onTap: () {},
+              onTap: () {
+                launch(
+                    'https://github.com/lohith-hg/singularity-privacy/blob/main/About-us.md');
+              },
             ),
           ],
         ),
