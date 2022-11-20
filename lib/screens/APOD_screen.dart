@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../widgets/read_more.dart';
 
 class PictureOftheDayScreen extends StatefulWidget {
-  PictureOftheDayScreen({Key? key}) : super(key: key);
+  const PictureOftheDayScreen({Key? key}) : super(key: key);
 
   @override
   State<PictureOftheDayScreen> createState() => _PictureOftheDayScreenState();
@@ -151,15 +149,27 @@ class _PictureOftheDayScreenState extends State<PictureOftheDayScreen> {
                     child: Column(
                       children: [
                         if (!(controller.apodPictures[index].url
-                            .contains('www.youtube.com')))
+                                .contains('www.youtube.com') ||
+                            controller.apodPictures[index].url
+                                .contains('player.vimeo.com')))
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: CachedNetworkImage(
-                              imageUrl: controller.apodPictures[index].url,
-                              placeholder: (context, url) =>
-                                  const CircularProgressIndicator(),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
+                            child: Image.network(
+                              controller.apodPictures[index].url,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return const SizedBox(
+                                  height: 300,
+                                  width: 300,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: secondaryColor,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         Padding(
@@ -187,9 +197,12 @@ class _PictureOftheDayScreenState extends State<PictureOftheDayScreen> {
                             ),
                           ),
                         ),
-                        ExpandableText(
-                          controller.apodPictures[index].explanation,
-                          trimLines: 15,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 9),
+                          child: ExpandableText(
+                            controller.apodPictures[index].explanation,
+                            trimLines: 15,
+                          ),
                         ),
                         // if (controller.isReadmoreMode.value)
                         Padding(

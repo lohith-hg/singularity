@@ -42,7 +42,9 @@ class FeedsScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         if (!(controller.feedPictures[index].url
-                            .contains('www.youtube.com')))
+                                .contains('www.youtube.com') ||
+                            controller.feedPictures[index].url
+                                .contains('player.vimeo.com')))
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child: Image.network(
@@ -51,14 +53,13 @@ class FeedsScreen extends StatelessWidget {
                                   Widget child,
                                   ImageChunkEvent? loadingProgress) {
                                 if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
+                                return const SizedBox(
+                                  height: 300,
+                                  width: 300,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: secondaryColor,
+                                    ),
                                   ),
                                 );
                               },
@@ -76,9 +77,12 @@ class FeedsScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        ExpandableText(
-                          controller.feedPictures[index].explanation,
-                          trimLines: 15,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 9),
+                          child: ExpandableText(
+                            controller.feedPictures[index].explanation,
+                            trimLines: 15,
+                          ),
                         ),
                         // if (controller.isReadmoreMode.value)
                         Padding(
