@@ -34,7 +34,7 @@ class MyTheme {
       button: TextStyle(
           fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
     ),
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: Colors.black,
     appBarTheme: const AppBarTheme(
       elevation: 2,
       backgroundColor: Colors.white,
