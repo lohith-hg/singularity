@@ -30,7 +30,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: Container(
               padding: const EdgeInsets.all(10.0),
               width: double.infinity,
-              height: MediaQuery.of(context).size.height / 2.3,
+              height: MediaQuery.of(context).size.height / 2,
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -102,7 +102,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: Container(
               padding: const EdgeInsets.all(10.0),
               width: double.infinity,
-              height: MediaQuery.of(context).size.height / 2.3,
+              height: MediaQuery.of(context).size.height / 2,
               //height: 320,
               child: Stack(
                 children: [

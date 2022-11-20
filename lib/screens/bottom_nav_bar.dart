@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/explore_screen.dart';
+import 'package:singularity/screens/feed_screen.dart';
 import 'package:singularity/screens/home_screen.dart';
+import 'package:singularity/screens/APOD_screen.dart';
 import 'package:singularity/screens/planets_screen.dart';
 
 class BottomNavigation extends StatefulWidget {
@@ -14,10 +16,12 @@ class BottomNavigation extends StatefulWidget {
 
 class _BottomNavigationState extends State<BottomNavigation> {
   int _selectedIndex = 0;
-  static const List<Widget> screens = <Widget>[
+  static List<Widget> screens = <Widget>[
+    PictureOftheDayScreen(),
+    FeedsScreen(),
     HomeScreen(),
-    PlanetsScreen(),
-    ExploreScreen()
+    //PlanetsScreen(),
+    ExploreScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -44,19 +48,29 @@ class _BottomNavigationState extends State<BottomNavigation> {
             fontFamily: GoogleFonts.titilliumWeb().fontFamily),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(
+              Icons.home,
+            ),
+            backgroundColor: Colors.black,
+            label: 'APOD',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.public_outlined,
-            ),
-            label: 'Planets',
+            icon: Icon(Icons.article),
+            backgroundColor: Colors.black,
+            label: 'Feeds',
           ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(
+          //     Icons.public_outlined,
+          //   ),
+          //   backgroundColor: Colors.black,
+          //   label: 'Planets',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.explore_outlined,
             ),
+            backgroundColor: Colors.black,
             label: 'Explore',
           ),
         ],
