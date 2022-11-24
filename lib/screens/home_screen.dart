@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CustomContainer(
                 imgUrl: 'assets/3.png',
                 title: 'Planets',
-                heightFactor: 3.2,
+                heightFactor: 3.4,
               ),
             ),
           ),
