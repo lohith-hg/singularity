@@ -1,12 +1,9 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:singularity/constants/colors.dart';
+import 'package:singularity/constants/urls.dart';
 import 'package:singularity/controllers/APOD_controller.dart';
 import 'package:singularity/widgets/custom_button.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -115,8 +112,7 @@ class _PictureOftheDayScreenState extends State<PictureOftheDayScreen> {
                         fontSize: 18,
                         fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
                 onTap: () {
-                  launch(
-                      'https://github.com/lohith-hg/singularity-privacy/blob/main/privacy-policy.md');
+                  launchUrl(Urls().privacyPolicy);
                 },
               ),
               ListTile(
@@ -126,8 +122,7 @@ class _PictureOftheDayScreenState extends State<PictureOftheDayScreen> {
                         fontSize: 18,
                         fontFamily: GoogleFonts.titilliumWeb().fontFamily)),
                 onTap: () {
-                  launch(
-                      'https://github.com/lohith-hg/singularity-privacy/blob/main/About-us.md');
+                  launchUrl(Urls().aboutUs);
                 },
               ),
             ],
@@ -253,15 +248,29 @@ class _PictureOftheDayScreenState extends State<PictureOftheDayScreen> {
     });
   }
 
+  String? encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map((MapEntry<String, String> e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+  }
+
   Future launchEmail(
       {required String toEmail,
       required String subject,
       required String message}) async {
-    final url =
-        'mailto:$toEmail?subject=${Uri.encodeFull(subject)}&body=${Uri.encodeFull(message)}';
+    // final url =
+    //     'mailto:$toEmail?subject=${Uri.encodeFull(subject)}&body=${Uri.encodeFull(message)}';
 
-    if (await canLaunch(url)) {
-      await launch(url);
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'toEmail',
+      query: encodeQueryParameters(<String, String>{
+        'subject': subject,
+      }),
+    );
+    if (await canLaunchUrl(emailLaunchUri)) {
+      await launchUrl(emailLaunchUri);
     }
   }
 
@@ -278,8 +287,7 @@ class _PictureOftheDayScreenState extends State<PictureOftheDayScreen> {
   // }
 
   Future shareAppLink() async {
-    String appLink =
-        'https://play.google.com/store/apps/details?id=com.lohith.singularity&pli=1';
+    String appLink = Urls().appLink;
     String text =
         'Hey,Check out this singularity app, singularity is an app where you can explore and learn about universe,stars,planets - $appLink';
     await Share.share(text);

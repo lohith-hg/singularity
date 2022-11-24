@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/bottom_nav_bar.dart';
+import 'package:upgrader/upgrader.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: primaryColor,
@@ -23,7 +25,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: primaryColor,
       ),
-      home: const BottomNavigation(),
+      home: UpgradeAlert(
+          upgrader: Upgrader(showReleaseNotes: false),
+          child: const BottomNavigation()),
     );
   }
 }

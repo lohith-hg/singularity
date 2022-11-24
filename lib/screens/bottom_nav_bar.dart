@@ -5,7 +5,6 @@ import 'package:singularity/screens/explore_screen.dart';
 import 'package:singularity/screens/feed_screen.dart';
 import 'package:singularity/screens/home_screen.dart';
 import 'package:singularity/screens/APOD_screen.dart';
-import 'package:singularity/screens/planets_screen.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({Key? key}) : super(key: key);

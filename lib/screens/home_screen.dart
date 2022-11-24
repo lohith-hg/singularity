@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/explore_screen.dart';
 import 'package:singularity/screens/planets_screen.dart';
@@ -61,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CustomContainer(
                 imgUrl: 'assets/3.png',
                 title: 'Planets',
-                heightFactor: 3.2,
+                heightFactor: 3.4,
               ),
             ),
           ),

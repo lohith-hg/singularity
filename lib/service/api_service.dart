@@ -1,14 +1,13 @@
-import 'dart:convert';
 import 'package:singularity/data/mars_pictures.dart';
 import 'package:singularity/data/picture_of_the_day.dart';
 import 'package:http/http.dart' as http;
 
 class LocalService {
-  Future<List<PictureOfTheDay>?> getPictures(int days) async {
-    var lastDate = DateTime.now().subtract( Duration(days: days));
+  Future<List<PictureOfTheDay>?> getPictures(DateTime startDay, int days) async {
+    var lastDate = startDay.subtract(Duration(days: days));
     var oldDate = "${lastDate.year}-${lastDate.month}-${lastDate.day}";
     var latestDate =
-        "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
+        "${startDay.subtract(const Duration(hours: 9)).year}-${startDay.subtract(const Duration(hours: 9)).month}-${startDay.subtract(const Duration(hours: 9)).day}";
 
     var client = http.Client();
     var uri = Uri.parse(

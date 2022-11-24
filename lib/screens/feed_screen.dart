@@ -25,6 +25,21 @@ class FeedsScreen extends StatelessWidget {
           centerTitle: true,
           elevation: 2,
           backgroundColor: Colors.black,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 4, top: 10, bottom: 10),
+              child: MaterialButton(
+                minWidth: 30,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                onPressed: () {
+                  controller.feedPictures.shuffle();
+                },
+                child: const Text('Refresh'),
+                color: secondaryColor,
+              ),
+            )
+          ],
         ),
         body: controller.isFeedLoading.value
             ? const Center(
