@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
 import 'package:singularity/screens/explore_screen.dart';
 import 'package:singularity/screens/planets_screen.dart';

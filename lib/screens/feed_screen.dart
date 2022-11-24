@@ -26,6 +26,11 @@ class FeedsScreen extends StatelessWidget {
           elevation: 2,
           backgroundColor: Colors.black,
         ),
+        floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              controller.feedPictures.shuffle();
+            },
+            child: const Icon(Icons.refresh)),
         body: controller.isFeedLoading.value
             ? const Center(
                 child: CircularProgressIndicator(
