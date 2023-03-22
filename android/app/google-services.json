@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "410672712684",
+    "project_id": "singularity-2c7a2",
+    "storage_bucket": "singularity-2c7a2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410672712684:android:d570119acfcec906024ec9",
+        "android_client_info": {
+          "package_name": "com.lohith.singularity"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "410672712684-nf3nb3nps4q77or36ogsm3pgadfs1974.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLX0r_6w6l7VRIqCspIMLrtacgwkb-QUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "410672712684-nf3nb3nps4q77or36ogsm3pgadfs1974.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

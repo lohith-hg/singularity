@@ -5,12 +5,14 @@ import 'package:singularity/constants/colors.dart';
 import 'package:singularity/controllers/APOD_controller.dart';
 import 'package:singularity/widgets/custom_button.dart';
 
+import '../controllers/auth_controller.dart';
 import '../widgets/read_more.dart';
 
 class FeedsScreen extends StatelessWidget {
   FeedsScreen({Key? key}) : super(key: key);
 
   final controller = Get.put(APODController());
+  AuthController authController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +34,9 @@ class FeedsScreen extends StatelessWidget {
                 minWidth: 30,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
-                onPressed: () {
-                  controller.feedPictures.shuffle();
+                onPressed: () async {
+                  // controller.feedPictures.shuffle();
+                  await AuthController.authService.signOut();
                 },
                 child: const Text('Refresh'),
                 color: secondaryColor,

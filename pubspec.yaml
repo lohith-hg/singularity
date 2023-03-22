@@ -41,6 +41,14 @@ dependencies:
   path_provider: ^2.0.9
   get: ^4.6.5
   upgrader: ^4.8.1
+  firebase_core: ^2.8.0
+  cloud_firestore: ^4.4.5
+  build_runner: ^2.3.3
+  json_annotation: ^4.8.0
+  json_serializable: ^6.6.1
+  flutter_svg: ^2.0.4
+  firebase_auth: ^4.3.0
+  google_sign_in: ^6.0.2
 
 dev_dependencies:
   flutter_test:
