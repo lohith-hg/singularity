@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/constants/colors.dart';
+import 'package:singularity/data/history_album.dart';
 import 'package:singularity/screens/explore_screen.dart';
 import 'package:singularity/screens/feed_screen.dart';
+import 'package:singularity/screens/vintage_space_screen.dart';
 import 'package:singularity/screens/home_screen.dart';
 import 'package:singularity/screens/APOD_screen.dart';
+import 'package:singularity/screens/profile_screen.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({Key? key}) : super(key: key);
@@ -18,9 +21,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
   static List<Widget> screens = <Widget>[
     const PictureOftheDayScreen(),
     FeedsScreen(),
+    VintageSpaceScreen(),
     const HomeScreen(),
-    //PlanetsScreen(),
-    const ExploreScreen(),
+    ProfileScreen(),
+    //const ExploreScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -56,21 +60,28 @@ class _BottomNavigationState extends State<BottomNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.article),
             backgroundColor: Colors.black,
-            label: 'Feeds',
+            label: 'Sky Stories',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(
-          //     Icons.public_outlined,
-          //   ),
-          //   backgroundColor: Colors.black,
-          //   label: 'Planets',
-          // ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.camera,
+            ),
+            backgroundColor: Colors.black,
+            label: 'Vintage Space',
+          ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.explore_outlined,
             ),
             backgroundColor: Colors.black,
             label: 'Explore',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.account_circle,
+            ),
+            backgroundColor: Colors.black,
+            label: 'Profile',
           ),
         ],
         currentIndex: _selectedIndex,

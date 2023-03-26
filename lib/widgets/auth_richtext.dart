@@ -22,7 +22,7 @@ class AuthRichText extends StatelessWidget {
         style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w400,
-          color: Colors.white,
+          color: Colors.black,
         ),
         children: [
           TextSpan(
@@ -31,7 +31,7 @@ class AuthRichText extends StatelessWidget {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: secondaryColor,
+              color: Colors.black,
             ),
           ),
         ],

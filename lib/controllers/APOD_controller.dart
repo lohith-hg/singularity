@@ -12,8 +12,8 @@ class APODController extends GetxController {
   var isReadmoreMode = false.obs;
 
   getFeedPictures() async {
-    DateTime startDate = DateTime.now().subtract(const Duration(days: 30));
-    feedPictures.value = (await LocalService().getPictures(startDate, 80))!;
+    DateTime startDate = DateTime.now().subtract(const Duration(days: 10));
+    feedPictures.value = (await LocalService().getPictures(startDate, 40))!;
     feedPictures.shuffle();
     if (feedPictures.isNotEmpty) {
       isFeedLoading.value = false;
@@ -28,8 +28,6 @@ class APODController extends GetxController {
       isAPODLoading.value = false;
     }
   }
-
- 
 
   @override
   Future<void> onInit() async {

@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:singularity/data/history_album.dart';
 import 'package:singularity/data/mars_pictures.dart';
 import 'package:singularity/data/picture_of_the_day.dart';
 import 'package:http/http.dart' as http;
 
 class LocalService {
-  Future<List<PictureOfTheDay>?> getPictures(DateTime startDay, int days) async {
+  Future<List<PictureOfTheDay>?> getPictures(
+      DateTime startDay, int days) async {
     var lastDate = startDay.subtract(Duration(days: days));
     var oldDate = "${lastDate.year}-${lastDate.month}-${lastDate.day}";
     var latestDate =
@@ -30,5 +35,25 @@ class LocalService {
       var json = response.body;
       return marsPicturesFromJson(json);
     }
+  }
+
+  Future<List<HistoryAlbum>?> getHistoryAlbumPictures(
+      String searchString) async {
+    Random random = Random();
+    int randomNumber1 = random.nextInt(10) + 1;
+    print("printing random numbera");
+    print(randomNumber1);
+    var client = http.Client();
+    var uri = Uri.parse(
+        'https://images-api.nasa.gov/search?q=$searchString&page_size=5&page=$randomNumber1');
+    var response = await client.get(uri);
+    if (response.statusCode == 200) {
+      var json = response.body;
+      var data = jsonDecode(json);
+      var items = List<HistoryAlbum>.from(data['collection']['items']
+          .map((data) => historyAlbumFromJson(jsonEncode(data))));
+      return items;
+    }
+    return null;
   }
 }

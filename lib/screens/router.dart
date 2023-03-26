@@ -5,6 +5,9 @@ import 'package:singularity/controllers/auth_controller.dart';
 import 'package:singularity/screens/auth_screen.dart';
 import 'package:upgrader/upgrader.dart';
 
+import '../controllers/APOD_controller.dart';
+import '../controllers/history_album_controller.dart';
+import '../controllers/profile_controller.dart';
 import '../service/auth_service.dart';
 import 'bottom_nav_bar.dart';
 
@@ -17,6 +20,12 @@ class ScreenRouter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Get.put(AuthService());
+    final authController = Get.put(AuthController());
+    final profileController = Get.put(ProfileController());
+    final apodController = Get.put(APODController());
+    final historyController = Get.put(HistoryAlbumController());
+
     if (FirebaseAuth.instance.currentUser == null) {
       return AuthScreen();
     } else {

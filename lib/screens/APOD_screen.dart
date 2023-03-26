@@ -7,7 +7,6 @@ import 'package:singularity/constants/urls.dart';
 import 'package:singularity/controllers/APOD_controller.dart';
 import 'package:singularity/widgets/custom_button.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../widgets/read_more.dart';
 
 class PictureOftheDayScreen extends StatefulWidget {
@@ -18,7 +17,7 @@ class PictureOftheDayScreen extends StatefulWidget {
 }
 
 class _PictureOftheDayScreenState extends State<PictureOftheDayScreen> {
-  final controller = Get.put(APODController());
+  final APODController controller = Get.find();
   //final screenshotController = ScreenshotController();
 
   @override

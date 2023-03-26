@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:singularity/constants/colors.dart';
 
 class Utils {
   void showSnackBar(String errorText) {
@@ -7,12 +8,9 @@ class Utils {
       SnackBar(
         content: Text(
           errorText,
-          style: const TextStyle(
-            color: Colors.white,
-            fontFamily: 'dity'
-          ),
+          style: const TextStyle(color: Colors.black, fontFamily: 'dity'),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: secondaryColor,
         behavior: SnackBarBehavior.floating,
         elevation: 8,
       ),

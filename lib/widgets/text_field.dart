@@ -1,86 +1,132 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class InputText extends StatelessWidget {
-  const InputText(
-      {Key? key,
-      required this.controller,
-      required this.label,
-      required this.hintText,
-      this.inp = const [],
-      this.validator,
-      this.enabled = true,
-      this.color = Colors.black,
-      this.maxLines = 1})
-      : super(key: key);
+  const InputText({
+    Key? key,
+    required this.w,
+    required this.controller,
+    required this.label,
+    required this.hintText,
+    this.inp = const [],
+    this.enabled = true,
+    this.showHint = false,
+    this.height = 45,
+    this.validator,
+    this.maxLines = 1,
+    this.charLimit,
+    this.obscureText = false,
+    this.isIcon = false,
+    this.textInputType = TextInputType.emailAddress,
+    this.onTap,
+    this.ontapPasswordView,
+    this.hasLeftPadding = false,
+    this.fillColor = Colors.black,
+    this.textColor = Colors.black,
+  }) : super(key: key);
 
+  final double? w;
   final TextEditingController controller;
-  final String label;
+  final TextInputType textInputType;
   final List<TextInputFormatter> inp;
+  final String label;
   final String hintText;
-  final dynamic validator;
-  final int maxLines;
-  final Color color;
   final bool enabled;
+  final bool showHint;
+  final bool obscureText;
+  final double height;
+  final String? Function(String?)? validator;
+  final int maxLines;
+  final int? charLimit;
+  final bool isIcon;
+  final void Function()? onTap;
+  final void Function()? ontapPasswordView;
+  final bool hasLeftPadding;
+  final Color fillColor;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      autofocus: true,
-      maxLines: maxLines,
-      controller: controller,
-      inputFormatters: inp,
-      validator: validator,
-      enabled: enabled,
-      keyboardType: TextInputType.emailAddress,
-      style: testStyle(),
-      cursorColor: Colors.white,
-      decoration: InputDecoration(
-        label: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: label,
-                style: testStyle(),
-              ),
-            ],
+    return Padding(
+      padding:
+          EdgeInsets.only(top: 2, bottom: 2, left: hasLeftPadding ? 25 : 0),
+      child: SizedBox(
+        width: w,
+        child: TextFormField(
+          maxLines: maxLines,
+          controller: controller,
+          inputFormatters: inp,
+          validator: validator,
+          obscureText: obscureText,
+          onTap: onTap,
+          enabled: enabled,
+          keyboardType: textInputType,
+          style: TextStyle(
+            color: const Color(0xff1C2B2F),
+            fontWeight: FontWeight.bold,
+            fontFamily: GoogleFonts.sourceSansPro().fontFamily,
           ),
-        ),
-        contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
-        alignLabelWithHint: false,
-        //hintText: hintText,
-        errorMaxLines: 2,
-        hintStyle: testStyle(),
-        border: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide(color: color),
-        ),
-        fillColor: Colors.black.withOpacity(0.6),
-        filled: true,
-        focusedBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide(
-            color: color,
+          textAlign: TextAlign.start,
+          cursorColor: Colors.black,
+          decoration: InputDecoration(
+            label: (!showHint)
+                ? Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: label,
+                          style: testStyle(),
+                        ),
+                      ],
+                    ),
+                  )
+                : null,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            alignLabelWithHint: false,
+            suffixIcon: isIcon
+                ? IconButton(
+                    icon: Icon(
+                      obscureText ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.black,
+                    ),
+                    onPressed: ontapPasswordView,
+                  )
+                : null,
+            hintText: (showHint) ? hintText : null,
+            hintStyle: TextStyle(
+              color: const Color(0xff6F6F6F),
+              fontSize: 18,
+              fontWeight: FontWeight.w300,
+              fontFamily: GoogleFonts.sourceSansPro().fontFamily,
+            ),
+            fillColor: fillColor,
+            filled: true,
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: fillColor),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: fillColor),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: fillColor),
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
-          borderSide: BorderSide(color: color),
-        ),
-        errorStyle: const TextStyle(
-          fontSize: 18.0,
-          fontFamily: 'dity',
-          fontWeight: FontWeight.w300,
         ),
       ),
     );
   }
 
   TextStyle testStyle() {
-    return const TextStyle(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        fontFamily: 'dity');
+    return TextStyle(
+      color: textColor,
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      fontFamily: GoogleFonts.titilliumWeb().fontFamily,
+    );
   }
 }

@@ -11,7 +11,7 @@ import '../widgets/read_more.dart';
 class FeedsScreen extends StatelessWidget {
   FeedsScreen({Key? key}) : super(key: key);
 
-  final controller = Get.put(APODController());
+  final APODController controller = Get.find();
   AuthController authController = Get.find();
 
   @override
@@ -35,8 +35,7 @@ class FeedsScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 onPressed: () async {
-                  // controller.feedPictures.shuffle();
-                  await AuthController.authService.signOut();
+                   controller.feedPictures.shuffle();
                 },
                 child: const Text('Refresh'),
                 color: secondaryColor,

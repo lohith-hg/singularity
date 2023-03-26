@@ -85,11 +85,9 @@ class AuthService extends GetxService {
 
       if (data.additionalUserInfo!.isNewUser) {
         var user = AppUser();
-        user.name = (GetPlatform.isWeb)
-            ? googleWebUser!.displayName
-            : googleUser!.displayName;
+        user.name = googleUser!.displayName;
         user.id = FirebaseAuth.instance.currentUser!.uid;
-        user.phone = googleUser!.email;
+        user.email = googleUser.email;
         user.createdAt = DateTime.now();
         setUser(user);
         Get.offAll(() => const BottomNavigation());
@@ -99,12 +97,44 @@ class AuthService extends GetxService {
     } on FirebaseAuthException {
       Utils().showSnackBar("Something went wrong, please try again");
     } catch (e) {
-      print("printingggggggggggggggggg");
-      print(e.toString());
       switch (e.toString()) {
         default:
           Utils().showSnackBar(e.toString());
       }
+    }
+  }
+
+  createUserWithEmailAndPassword(
+      {required String emailAddress, required String password}) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+    } on FirebaseAuthException {
+      rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  signInWithEmailAndPassword(
+      {required String emailAddress, required String password}) async {
+    try {
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: emailAddress, password: password);
+    } on FirebaseAuthException {
+      rethrow;
+    }
+  }
+
+  resetPassword({required String email}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      Utils().showSnackBar("Password reset email sent, please check yout email");
+    } catch (e) {
+      throw e.toString();
     }
   }
 

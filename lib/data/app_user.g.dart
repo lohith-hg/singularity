@@ -13,8 +13,11 @@ AppUser _$AppUserFromJson(Map<String, dynamic> json) => AppUser(
       age: json['age'] as String?,
       role: json['role'] as String?,
       occupation: json['occupation'] as String?,
-      phone: json['phone'] as String?,
+      email: json['email'] as String?,
       country: json['country'] as String?,
+      interests: (json['interests'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       favMovies: (json['favMovies'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
@@ -33,8 +36,9 @@ Map<String, dynamic> _$AppUserToJson(AppUser instance) => <String, dynamic>{
       'age': instance.age,
       'role': instance.role,
       'occupation': instance.occupation,
-      'phone': instance.phone,
+      'email': instance.email,
       'country': instance.country,
+      'interests': instance.interests,
       'favMovies': instance.favMovies,
       'following': instance.following,
       'createdAt': instance.createdAt?.toIso8601String(),
