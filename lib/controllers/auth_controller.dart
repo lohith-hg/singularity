@@ -49,6 +49,7 @@ class AuthController extends GetxController {
         user.name = nameEditingController.text;
         user.id = auth.currentUser!.uid;
         user.email = auth.currentUser!.email;
+        user.bio = "📸 Exploring the universe, one shot at a time!";
         user.createdAt = DateTime.now();
         authService.setUser(user);
         Get.offAll(() => const BottomNavigation());

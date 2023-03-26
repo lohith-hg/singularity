@@ -88,6 +88,7 @@ class AuthService extends GetxService {
         user.name = googleUser!.displayName;
         user.id = FirebaseAuth.instance.currentUser!.uid;
         user.email = googleUser.email;
+        user.bio = "📸 Exploring the universe, one shot at a time!";
         user.createdAt = DateTime.now();
         setUser(user);
         Get.offAll(() => const BottomNavigation());
@@ -132,7 +133,8 @@ class AuthService extends GetxService {
   resetPassword({required String email}) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      Utils().showSnackBar("Password reset email sent, please check yout email");
+      Utils()
+          .showSnackBar("Password reset email sent, please check yout email");
     } catch (e) {
       throw e.toString();
     }
