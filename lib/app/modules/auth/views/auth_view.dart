@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:singularity/app/constants/colors.dart';
 import '../../../service/auth_service.dart';
 import '../../../utils/utils.dart';
 import '../../../widgets/auth_richtext.dart';
 import '../../../widgets/text_field.dart';
 import '../controllers/auth_controller.dart';
 
-class AuthView extends GetView<AuthController>  {
+class AuthView extends GetView<AuthController> {
   AuthView({Key? key}) : super(key: key);
 
   @override
@@ -22,7 +24,9 @@ class AuthView extends GetView<AuthController>  {
           backgroundColor: Colors.transparent,
           title: Text(
             (isSignUp) ? "Create Account" : "Log In",
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(
+                color: Colors.white,
+                fontFamily: GoogleFonts.titilliumWeb().fontFamily),
           ),
           centerTitle: true,
           elevation: 0,
@@ -45,7 +49,7 @@ class AuthView extends GetView<AuthController>  {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF8C00),
+                      color: secondaryColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Padding(
@@ -60,7 +64,9 @@ class AuthView extends GetView<AuthController>  {
                             Text(
                               (isSignUp) ? "Sign Up" : "Log In",
                               style: const TextStyle(
-                                  color: Colors.black, fontSize: 20),
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(
                               height: 32,
@@ -133,6 +139,7 @@ class AuthView extends GetView<AuthController>  {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: TextButton(
+                                  
                                     onPressed: () async {
                                       bool emailValid = false;
                                       if (controller.emailEditingController.text
@@ -145,15 +152,23 @@ class AuthView extends GetView<AuthController>  {
                                                 .trim());
                                       }
                                       if (emailValid) {
-                                        await controller.authService.resetPassword(
-                                            email: controller
-                                                .emailEditingController.text);
+                                        await controller.authService
+                                            .resetPassword(
+                                                email: controller
+                                                    .emailEditingController
+                                                    .text);
                                       } else {
                                         Utils().showSnackBar(
                                             "Please enter valid email");
                                       }
                                     },
-                                    child: const Text("Forgot password?")),
+                                    child: Text(
+                                      "Forgot password?",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: GoogleFonts.titilliumWeb()
+                                              .fontFamily),
+                                    )),
                               ),
                             if (isSignUp)
                               const SizedBox(
@@ -248,8 +263,7 @@ class AuthView extends GetView<AuthController>  {
                             ),
                             InkWell(
                               onTap: () async {
-                                await controller.authService
-                                    .signInWithGoogle();
+                                await controller.authService.signInWithGoogle();
                               },
                               child: Container(
                                 height: 45,

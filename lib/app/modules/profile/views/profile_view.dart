@@ -16,19 +16,16 @@ class ProfileView extends GetView<ProfileController> {
       return Scaffold(
         backgroundColor: primaryColor,
         appBar: AppBar(
-          backgroundColor: primaryColor,
-          title: Text(
+          title: const Text(
             'Profile',
-            style: TextStyle(
-              fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-              fontSize: 22,
-              color: Colors.white,
-            ),
+            style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
+          elevation: 2,
+          backgroundColor: Colors.black,
           actions: [
             Padding(
-              padding: const EdgeInsets.only(right: 4, top: 10, bottom: 10),
+              padding: const EdgeInsets.only(right: 8, top: 10, bottom: 10),
               child: MaterialButton(
                 minWidth: 30,
                 shape: RoundedRectangleBorder(
@@ -43,12 +40,10 @@ class ProfileView extends GetView<ProfileController> {
                 },
                 child: Text(
                   (!controller.editMode.value) ? "Edit" : "Save",
-                  style: TextStyle(
-                      fontFamily: 'dity', fontSize: 18, color: primaryColor),
                 ),
                 color: secondaryColor,
               ),
-            ),
+            )
           ],
         ),
         body: Padding(
@@ -267,10 +262,10 @@ class ProfileView extends GetView<ProfileController> {
                           Icons.logout,
                           color: Colors.white,
                         ),
-                        label: const Text(
+                        label:  Text(
                           "Sign Out",
                           style: TextStyle(
-                            fontFamily: 'dity',
+                           fontFamily: GoogleFonts.titilliumWeb().fontFamily,
                             color: Colors.white,
                             fontSize: 18,
                           ),

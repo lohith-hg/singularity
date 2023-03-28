@@ -32,7 +32,11 @@ class Singularity extends StatelessWidget {
           fontFamily: GoogleFonts.titilliumWeb().fontFamily,
           appBarTheme: AppBarTheme(
             backgroundColor: primaryColor,
-            titleTextStyle: const TextStyle(color: Colors.white, fontSize: 18),
+            titleTextStyle: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontFamily: GoogleFonts.titilliumWeb().fontFamily,
+            ),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../constants/colors.dart';
 
 class Utils {
@@ -8,7 +9,10 @@ class Utils {
       SnackBar(
         content: Text(
           errorText,
-          style: const TextStyle(color: Colors.black, fontFamily: 'dity'),
+          style: TextStyle(
+            color: Colors.black,
+            fontFamily: GoogleFonts.titilliumWeb().fontFamily,
+          ),
         ),
         backgroundColor: secondaryColor,
         behavior: SnackBarBehavior.floating,

@@ -187,7 +187,7 @@ class CosmoDailyView extends GetView<CosmoDailyController> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 9),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: ExpandableText(
                               controller.apodPictures[index].explanation,
                               trimLines: 15,

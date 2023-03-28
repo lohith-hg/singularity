@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/app/modules/cosmo_daily/controllers/cosmo_daily_controller.dart';
 
 import '../constants/colors.dart';
@@ -29,13 +30,13 @@ class ExpandableTextState extends State<ExpandableText> {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle _style = const TextStyle(
+    TextStyle _style =  TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w400,
         height: 1.5,
-        fontFamily: "Nunito",
+        fontFamily: GoogleFonts.titilliumWeb().fontFamily,
         fontStyle: FontStyle.normal,
-        fontSize: 14.0);
+        fontSize: 15.0);
     Color colorClickableText = secondaryColor;
 
     TextSpan link = TextSpan(

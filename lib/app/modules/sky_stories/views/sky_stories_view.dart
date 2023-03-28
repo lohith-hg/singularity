@@ -90,7 +90,7 @@ class SkyStoriesView extends GetView<SkyStoriesController>{
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 9),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: ExpandableText(
                             controller.feedPictures[index].explanation,
                             trimLines: 15,
