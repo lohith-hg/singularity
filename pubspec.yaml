@@ -12,7 +12,7 @@ dependencies:
   screenshot: ^1.2.3
   share_plus: ^4.0.4
   path_provider: ^2.0.9
-  upgrader: ^4.8.1
+  upgrader: ^6.2.0
   firebase_core: ^2.8.0
   cloud_firestore: ^4.4.5
   build_runner: ^2.3.3
