@@ -1,8 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:singularity/app/modules/cosmo_daily/controllers/cosmo_daily_controller.dart';
 
 import '../constants/colors.dart';
 

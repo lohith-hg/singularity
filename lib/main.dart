@@ -1,23 +1,20 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:singularity/app/constants/colors.dart';
-import 'package:upgrader/upgrader.dart';
+import 'package:singularity/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'app/routes/app_pages.dart';
-import 'control_binding.dart';
+import 'core/router/app_router.dart';
 import 'firebase_options.dart';
+import 'injection_container.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(
-    const Singularity(),
-  );
+  await initDependencies();
+  runApp(const Singularity());
 }
 
 class Singularity extends StatelessWidget {
@@ -25,7 +22,9 @@ class Singularity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp.router(
+    return BlocProvider(
+      create: (_) => sl<AuthBloc>(),
+      child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
@@ -40,17 +39,9 @@ class Singularity extends StatelessWidget {
             iconTheme: const IconThemeData(color: Colors.white),
           ),
         ),
-        title: "Singularity",
-        routerDelegate: GetDelegate(
-          backButtonPopMode: PopMode.Page,
-          preventDuplicateHandlingMode:
-              PreventDuplicateHandlingMode.PopUntilOriginalRoute,
-        ),
-        popGesture: Get.isPopGestureEnable,
-        //initialRoute: AppPages.HOME,
-        getPages: AppPages.routes,
-        initialBinding: ControlBinding()
-        // initialBinding: ControlBinding(),
-        );
+        title: 'Singularity',
+        routerConfig: appRouter,
+      ),
+    );
   }
 }

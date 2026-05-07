@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:singularity/app/modules/cosmo_daily/views/cosmo_daily_view.dart';
-import 'package:singularity/app/modules/explore/views/explore_view.dart';
-import 'package:singularity/app/modules/profile/views/profile_view.dart';
-import 'package:singularity/app/modules/sky_stories/views/sky_stories_view.dart';
-import 'package:singularity/app/modules/vintage_space/views/vintage_space_view.dart';
+import 'package:singularity/features/cosmo_daily/presentation/bloc/cosmo_daily_bloc.dart';
+import 'package:singularity/features/cosmo_daily/presentation/pages/cosmo_daily_page.dart';
+import 'package:singularity/features/explore/presentation/bloc/explore_bloc.dart';
+import 'package:singularity/features/explore/presentation/pages/explore_page.dart';
+import 'package:singularity/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:singularity/features/profile/presentation/pages/profile_page.dart';
+import 'package:singularity/features/sky_stories/presentation/bloc/sky_stories_bloc.dart';
+import 'package:singularity/features/sky_stories/presentation/pages/sky_stories_page.dart';
+import 'package:singularity/features/vintage_space/presentation/bloc/vintage_space_bloc.dart';
+import 'package:singularity/features/vintage_space/presentation/pages/vintage_space_page.dart';
+import 'package:singularity/injection_container.dart';
 import '../../../constants/colors.dart';
 
 class HomeView extends StatefulWidget {
@@ -16,13 +23,30 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
-  static List<Widget> screens = <Widget>[
-    const CosmoDailyView(),
-    SkyStoriesView(),
-    VintageSpaceView(),
-    const ExploreView(),
-    ProfileView(),
-    //const ExploreScreen(),
+
+  // Each BLoC tab is wrapped in its own BlocProvider so the BLoC's lifetime
+  // is tied to the widget tree, not to a global service.
+  static final List<Widget> screens = [
+    BlocProvider(
+      create: (_) => sl<CosmoDailyBloc>(),
+      child: const CosmoDailyPage(),
+    ),
+    BlocProvider(
+      create: (_) => sl<SkyStoriesBloc>(),
+      child: const SkyStoriesPage(),
+    ),
+    BlocProvider(
+      create: (_) => sl<VintageSpaceBloc>(),
+      child: const VintageSpacePage(),
+    ),
+    BlocProvider(
+      create: (_) => sl<ExploreBloc>()..add(LoadExploreDataEvent()),
+      child: const ExplorePage(),
+    ),
+    BlocProvider(
+      create: (_) => sl<ProfileBloc>(),
+      child: const ProfilePage(),
+    ),
   ];
 
   void _onItemTapped(int index) {
@@ -49,9 +73,7 @@ class _HomeViewState extends State<HomeView> {
             fontFamily: GoogleFonts.titilliumWeb().fontFamily),
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.public,
-            ),
+            icon: Icon(Icons.public),
             backgroundColor: Colors.black,
             label: 'Cosmo Daily',
           ),
@@ -61,23 +83,17 @@ class _HomeViewState extends State<HomeView> {
             label: 'Sky Stories',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.camera,
-            ),
+            icon: Icon(Icons.camera),
             backgroundColor: Colors.black,
             label: 'Vintage Space',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.explore_outlined,
-            ),
+            icon: Icon(Icons.explore_outlined),
             backgroundColor: Colors.black,
             label: 'Explore',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.account_circle,
-            ),
+            icon: Icon(Icons.account_circle),
             backgroundColor: Colors.black,
             label: 'Profile',
           ),

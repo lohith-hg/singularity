@@ -49,8 +49,11 @@ class InputText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding:
-          EdgeInsets.only(top: 2, bottom: 2, left: hasLeftPadding ? 25 : 0),
+      padding: EdgeInsets.only(
+        top: 2,
+        bottom: 2,
+        left: hasLeftPadding ? 25 : 0,
+      ),
       child: SizedBox(
         width: w,
         child: TextFormField(
@@ -65,7 +68,7 @@ class InputText extends StatelessWidget {
           style: TextStyle(
             color: const Color(0xff1C2B2F),
             fontWeight: FontWeight.bold,
-            fontFamily: GoogleFonts.sourceSansPro().fontFamily,
+            fontFamily: GoogleFonts.sourceSans3().fontFamily,
           ),
           textAlign: TextAlign.start,
           cursorColor: Colors.black,
@@ -73,17 +76,14 @@ class InputText extends StatelessWidget {
             label: (!showHint)
                 ? Text.rich(
                     TextSpan(
-                      children: [
-                        TextSpan(
-                          text: label,
-                          style: testStyle(),
-                        ),
-                      ],
+                      children: [TextSpan(text: label, style: testStyle())],
                     ),
                   )
                 : null,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 8,
+            ),
             alignLabelWithHint: false,
             suffixIcon: isIcon
                 ? IconButton(
@@ -99,7 +99,7 @@ class InputText extends StatelessWidget {
               color: const Color(0xff6F6F6F),
               fontSize: 18,
               fontWeight: FontWeight.w300,
-              fontFamily: GoogleFonts.sourceSansPro().fontFamily,
+              fontFamily: GoogleFonts.sourceSans3().fontFamily,
             ),
             fillColor: fillColor,
             filled: true,

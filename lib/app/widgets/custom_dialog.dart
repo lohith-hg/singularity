@@ -52,7 +52,7 @@ class CustomDialog extends StatelessWidget {
                           bottom: 20, right: 20, left: 20),
                       child: Text(
                         displayText,
-                        style: Theme.of(context).textTheme.headline1!.copyWith(
+                        style: Theme.of(context).textTheme.displayLarge!.copyWith(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
