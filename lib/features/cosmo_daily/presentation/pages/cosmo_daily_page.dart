@@ -1,292 +1,448 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:upgrader/upgrader.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../../../../core/constants/colors.dart';
-import '../../../../core/constants/urls.dart';
-import '../../../../app/widgets/custom_button.dart';
-import '../../../../app/widgets/read_more.dart';
+import '../../../../../app/widgets/s_round_btn.dart';
+import '../../../../../app/widgets/scrim_widget.dart';
+import '../../../../../app/widgets/singularity_logo.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../features/shared/entities/apod_entity.dart';
 import '../bloc/cosmo_daily_bloc.dart';
 
 class CosmoDailyPage extends StatefulWidget {
-  const CosmoDailyPage({Key? key}) : super(key: key);
+  const CosmoDailyPage({super.key});
 
   @override
   State<CosmoDailyPage> createState() => _CosmoDailyPageState();
 }
 
 class _CosmoDailyPageState extends State<CosmoDailyPage> {
-  // PageController is UI state — it stays in the widget, not the BLoC.
-  late final PageController _pageController;
-
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
     context.read<CosmoDailyBloc>().add(LoadCosmoDailyEvent());
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CosmoDailyBloc, CosmoDailyState>(
       builder: (context, state) {
-        return UpgradeAlert(
-          upgrader: Upgrader(),
-          showReleaseNotes: false,
-          child: Scaffold(
-            backgroundColor: primaryColor,
-            appBar: AppBar(
-              title: const Text(
-                'Singularity',
-                style: TextStyle(color: Colors.white),
+        if (state is CosmoDailyLoading || state is CosmoDailyInitial) {
+          return const Scaffold(
+            backgroundColor: AppColors.ink,
+            body: Center(
+              child: CircularProgressIndicator(
+                color: AppColors.bone,
+                strokeWidth: 1.5,
               ),
-              centerTitle: true,
-              elevation: 2,
-              backgroundColor: Colors.black,
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: IconButton(
-                    icon: const Icon(Icons.share),
-                    color: Colors.white,
-                    onPressed: _shareAppLink,
-                  ),
-                ),
-              ],
             ),
-            drawer: _buildDrawer(context),
-            body: _buildBody(state),
-          ),
-        );
-      },
-    );
-  }
+          );
+        }
 
-  Widget _buildBody(CosmoDailyState state) {
-    if (state is CosmoDailyLoading || state is CosmoDailyInitial) {
-      return const Center(
-        child: CircularProgressIndicator(color: secondaryColor),
-      );
-    }
+        if (state is CosmoDailyError) {
+          return Scaffold(
+            backgroundColor: AppColors.ink,
+            body: Center(
+              child: Text(
+                state.message,
+                style: const TextStyle(
+                  fontFamily: 'Geist',
+                  color: AppColors.bone3,
+                ),
+              ),
+            ),
+          );
+        }
 
-    if (state is CosmoDailyError) {
-      return Center(
-        child: Text(state.message, style: const TextStyle(color: Colors.white)),
-      );
-    }
+        if (state is CosmoDailyLoaded) {
+          final pics = state.pictures;
+          if (pics.isEmpty) return const SizedBox.shrink();
 
-    if (state is CosmoDailyLoaded) {
-      final pictures = state.pictures;
-      return PageView.builder(
-        controller: _pageController,
-        scrollDirection: Axis.horizontal,
-        itemCount: pictures.length,
-        itemBuilder: (context, index) {
-          final pic = pictures[index];
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                if (!(pic.url.contains('www.youtube.com') ||
-                    pic.url.contains('player.vimeo.com')))
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      pic.url,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return const SizedBox(
-                          height: 300,
-                          width: 300,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: secondaryColor,
-                            ),
-                          ),
-                        );
-                      },
+          final hero = pics.first;
+          final weekPics = pics.length > 1
+              ? pics.sublist(1, pics.length.clamp(0, 8))
+              : <ApodEntity>[];
+
+          return Scaffold(
+            backgroundColor: AppColors.ink,
+            extendBodyBehindAppBar: true,
+            body: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: _HeroSection(apod: hero)),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.sp24,
+                      AppSpacing.sp32,
+                      AppSpacing.sp24,
+                      0,
                     ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    pic.title,
-                    style: TextStyle(
-                      color: secondaryColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Text(
-                    _formatDate(pic.date),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: ExpandableText(pic.explanation, trimLines: 15),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      if (index != 0)
-                        Button(
-                          width: 0.25,
-                          height: 35,
-                          backgroundColor: primaryColor,
-                          borderColor: secondaryColor,
-                          textColor: secondaryColor,
-                          name: 'Previous',
-                          onTap: () => _pageController.previousPage(
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.linear,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Body text
+                        Text(
+                          hero.explanation,
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: 'Geist',
+                            fontSize: 15,
+                            height: 1.55,
+                            color: AppColors.bone2,
                           ),
                         ),
-                      if (index != pictures.length - 1)
-                        Button(
-                          width: 0.25,
-                          height: 35,
-                          backgroundColor: secondaryColor,
-                          borderColor: secondaryColor,
-                          textColor: primaryColor,
-                          name: 'Next',
-                          onTap: () => _pageController.nextPage(
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.linear,
-                          ),
-                        ),
-                    ],
+                        const SizedBox(height: AppSpacing.sp32),
+
+                        // Section header — Today across the system
+                        const _SectionHeader(title: 'Today across the system'),
+                        const SizedBox(height: AppSpacing.sp16),
+                        const _SystemGrid(),
+                        const SizedBox(height: AppSpacing.sp32),
+
+                        // Section header — This week
+                        if (weekPics.isNotEmpty) ...[
+                          const _SectionHeader(title: 'This week'),
+                          const SizedBox(height: AppSpacing.sp16),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
+
+                // Horizontal carousel
+                if (weekPics.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 160,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sp24,
+                        ),
+                        itemCount: weekPics.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 12),
+                        itemBuilder: (context, i) {
+                          final pic = weekPics[i];
+                          return _WeekThumb(apod: pic);
+                        },
+                      ),
+                    ),
+                  ),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             ),
           );
-        },
-      );
-    }
+        }
 
-    return const SizedBox.shrink();
+        return const SizedBox.shrink();
+      },
+    );
   }
+}
 
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      backgroundColor: primaryColor,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const SizedBox(height: 50),
-          Column(
-            children: [
-              const Image(
-                height: 150,
-                width: 150,
-                image: AssetImage('assets/app_icon.png'),
-              ),
-              Text(
-                'Singularity',
-                style: TextStyle(
-                  color: Colors.grey.shade200,
-                  fontSize: 22,
-                  fontFamily: GoogleFonts.titilliumWeb().fontFamily,
+class _HeroSection extends StatelessWidget {
+  const _HeroSection({required this.apod});
+  final ApodEntity apod;
+
+  @override
+  Widget build(BuildContext context) {
+    final isVideo = apod.url.contains('youtube') || apod.url.contains('vimeo');
+
+    return GestureDetector(
+      onTap: () => context.push('/apod-detail', extra: apod),
+      child: SizedBox(
+        height: 460,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (!isVideo)
+              CachedNetworkImage(
+                imageUrl: apod.url,
+                fit: BoxFit.cover,
+                placeholder: (_, _) => Container(color: AppColors.ink2),
+                errorWidget: (_, _, _) => Container(color: AppColors.ink2),
+              )
+            else
+              Container(
+                color: AppColors.ink2,
+                child: const Center(
+                  child: Icon(
+                    Icons.play_circle_outline,
+                    color: AppColors.bone3,
+                    size: 56,
+                  ),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 25),
-          ListTile(
-            title: Text(
-              'Share',
-              style: TextStyle(
-                color: Colors.grey.shade200,
-                fontSize: 18,
-                fontFamily: GoogleFonts.titilliumWeb().fontFamily,
+            const TopScrim(heightFraction: 0.28),
+            const BottomScrim(heightFraction: 0.55),
+
+            // Top bar overlay
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sp20,
+                  vertical: AppSpacing.sp8,
+                ),
+                child: Row(
+                  children: [
+                    const SingularityWordmark(size: 16),
+                    const Spacer(),
+                    SRoundBtn(
+                      onPressed: () => context.push('/search'),
+                      child: const Icon(
+                        Icons.search,
+                        color: AppColors.bone,
+                        size: 18,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            leading: const Icon(Icons.share, color: Colors.white),
-            onTap: _shareAppLink,
-          ),
-          ListTile(
-            title: Text(
-              'Contact us',
-              style: TextStyle(
-                color: Colors.grey.shade200,
-                fontSize: 18,
-                fontFamily: GoogleFonts.titilliumWeb().fontFamily,
+
+            // Bottom content overlay
+            Positioned(
+              left: AppSpacing.sp20,
+              right: AppSpacing.sp20,
+              bottom: AppSpacing.sp24,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${_formatDate(apod.date)}  ·  APOD'.toUpperCase(),
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.bone3,
+                      letterSpacing: 1.6,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sp8),
+                  Text(
+                    apod.title,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.newsreader(
+                      fontSize: 34,
+                      height: 1.08,
+                      fontWeight: FontWeight.w300,
+                      fontStyle: FontStyle.italic,
+                      color: AppColors.bone,
+                    ),
+                  ),
+                  if (apod.copyright.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.sp8),
+                    Text(
+                      '© ${apod.copyright}',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 10,
+                        color: AppColors.bone3,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            onTap: () => _launchEmail(
-              toEmail: 'lohithhggjc@gmail.com',
-              subject: 'Hello developer,',
-              message: ' ',
-            ),
-          ),
-          ListTile(
-            title: Text(
-              'Terms & conditions',
-              style: TextStyle(
-                color: Colors.grey.shade200,
-                fontSize: 18,
-                fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-              ),
-            ),
-            onTap: () => launchUrl(Urls().privacyPolicy),
-          ),
-          ListTile(
-            title: Text(
-              'About us',
-              style: TextStyle(
-                color: Colors.grey.shade200,
-                fontSize: 18,
-                fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-              ),
-            ),
-            onTap: () => launchUrl(Urls().aboutUs),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Future<void> _shareAppLink() async {
-    const appLink =
-        'https://play.google.com/store/apps/details?id=com.lohith.singularity&pli=1';
-    await Share.share(
-      'Hey, check out Singularity — explore the universe, stars, and planets: $appLink',
+  String _formatDate(DateTime d) => '${_monthName(d.month)} ${d.day}';
+
+  String _monthName(int m) => const [
+    '',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ][m];
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.newsreader(
+            fontSize: 22,
+            height: 1.2,
+            fontWeight: FontWeight.w300,
+            fontStyle: FontStyle.italic,
+            color: AppColors.bone,
+          ),
+        ),
+      ],
     );
   }
+}
 
-  Future<void> _launchEmail({
-    required String toEmail,
-    required String subject,
-    required String message,
-  }) async {
-    final uri = Uri(
-      scheme: 'mailto',
-      path: toEmail,
-      query: 'subject=${Uri.encodeComponent(subject)}',
+class _SystemGrid extends StatelessWidget {
+  const _SystemGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      const _GridItem(
+        label: 'Mars',
+        icon: Icons.radio_button_unchecked,
+        color: Color(0xFFC1440E),
+        route: '/mars',
+      ),
+      const _GridItem(
+        label: 'Earth',
+        icon: Icons.public,
+        color: Color(0xFF1A6B8A),
+        route: '/epic',
+      ),
+      const _GridItem(
+        label: 'Space weather',
+        icon: Icons.wb_sunny,
+        color: Color(0xFFE8C26E),
+        route: '/donki',
+      ),
+      const _GridItem(
+        label: 'Asteroids',
+        icon: Icons.adjust,
+        color: AppColors.bone3,
+        route: '/neo',
+      ),
+    ];
+
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.8,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: items.map((item) => _SystemTile(item: item)).toList(),
     );
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
+}
 
-  String _formatDate(DateTime date) => '${date.day}-${date.month}-${date.year}';
+class _GridItem {
+  const _GridItem({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.route,
+  });
+  final String label;
+  final IconData icon;
+  final Color color;
+  final String route;
+}
+
+class _SystemTile extends StatelessWidget {
+  const _SystemTile({required this.item});
+  final _GridItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push(item.route),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.ink1,
+          borderRadius: BorderRadius.circular(AppSpacing.sp12),
+          border: Border.all(color: AppColors.hairline),
+        ),
+        padding: const EdgeInsets.all(AppSpacing.sp16),
+        child: Row(
+          children: [
+            Icon(item.icon, color: item.color, size: 24),
+            const SizedBox(width: 10),
+            Text(
+              item.label,
+              style: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.bone,
+              ),
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: AppColors.bone4,
+              size: 10,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WeekThumb extends StatelessWidget {
+  const _WeekThumb({required this.apod});
+  final ApodEntity apod;
+
+  @override
+  Widget build(BuildContext context) {
+    final isVideo = apod.url.contains('youtube') || apod.url.contains('vimeo');
+
+    return GestureDetector(
+      onTap: () => context.push('/apod-detail', extra: apod),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppSpacing.sp12),
+        child: SizedBox(
+          width: 110,
+          height: 140,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (!isVideo)
+                CachedNetworkImage(
+                  imageUrl: apod.url,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => Container(color: AppColors.ink2),
+                  errorWidget: (_, _, _) => Container(color: AppColors.ink2),
+                )
+              else
+                Container(color: AppColors.ink2),
+              const BottomScrim(heightFraction: 0.5),
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: 8,
+                child: Text(
+                  apod.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: 'Geist',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.bone,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

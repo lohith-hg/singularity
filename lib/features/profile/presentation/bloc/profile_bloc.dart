@@ -11,10 +11,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetUserProfile getUserProfile;
   final UpdateUserProfile updateUserProfile;
 
-  ProfileBloc({
-    required this.getUserProfile,
-    required this.updateUserProfile,
-  }) : super(const ProfileInitial()) {
+  ProfileBloc({required this.getUserProfile, required this.updateUserProfile})
+    : super(const ProfileInitial()) {
     on<LoadProfileEvent>(_onLoadProfile);
     on<UpdateProfileEvent>(_onUpdateProfile);
   }
@@ -44,8 +42,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final currentUser = current is ProfileLoaded
         ? current.user
         : current is ProfileUpdateSuccess
-            ? current.user
-            : null;
+        ? current.user
+        : null;
 
     if (currentUser == null) return;
 

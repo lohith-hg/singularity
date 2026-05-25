@@ -15,13 +15,23 @@ class VintageSpaceLoading extends VintageSpaceState {
   const VintageSpaceLoading();
 }
 
-class VintageSpaceLoaded extends VintageSpaceState {
-  final List<NasaImageEntity> images;
+class VintageSpaceSearching extends VintageSpaceState {
+  final String query;
 
-  const VintageSpaceLoaded({required this.images});
+  const VintageSpaceSearching(this.query);
 
   @override
-  List<Object?> get props => [images];
+  List<Object?> get props => [query];
+}
+
+class VintageSpaceLoaded extends VintageSpaceState {
+  final List<NasaImageEntity> images;
+  final String? query;
+
+  const VintageSpaceLoaded({required this.images, this.query});
+
+  @override
+  List<Object?> get props => [images, query];
 }
 
 class VintageSpaceError extends VintageSpaceState {

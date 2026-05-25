@@ -15,11 +15,11 @@ class ParagraphModel {
   });
 
   ParagraphEntity toEntity() => ParagraphEntity(
-        id: id,
-        heading: heading,
-        imgUrl: imgUrl,
-        description: description,
-      );
+    id: id,
+    heading: heading,
+    imgUrl: imgUrl,
+    description: description,
+  );
 }
 
 class ArticleModel {
@@ -40,11 +40,11 @@ class ArticleModel {
   });
 
   ArticleEntity toEntity() => ArticleEntity(
-        id: id,
-        heading: heading,
-        description: description,
-        imgUrl: imgUrl,
-        imgCredits: imgCredits,
-        paragraphs: paragraphs.map((p) => p.toEntity()).toList(),
-      );
+    id: id,
+    heading: heading,
+    description: description,
+    imgUrl: imgUrl,
+    imgCredits: imgCredits,
+    paragraphs: paragraphs.map((p) => p.toEntity()).toList(),
+  );
 }

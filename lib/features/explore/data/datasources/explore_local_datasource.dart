@@ -19,7 +19,7 @@ class ExploreLocalDataSourceImpl implements ExploreLocalDataSource {
 // ---------------------------------------------------------------------------
 
 final List<PlanetModel> _planets = [
-  PlanetModel(
+  const PlanetModel(
     id: '1',
     name: 'Mercury',
     credits: 'nasa',
@@ -31,14 +31,39 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '0.4 AU (astronomical unit)',
     noOfMoons: '0',
     facts: [
-      FactModel(id: '1', heading: 'FASTEST PLANET', description: 'Mercury is the fastest planet in our solar system, moving at about 29 miles per second (47 kilometres per second) across space. A planet\'s speed increases as it gets closer to the Sun. Mercury has the shortest year of all the planets in our solar system - 88 days – since it is the quickest planet and travels the smallest distance around the Sun.'),
-      FactModel(id: '2', heading: 'ROUGH SURFACE', description: 'Mercury is a rocky planet, also known as a terrestrial planet. Mercury has a solid, cratered surface, much like the Earth\'s moon.'),
-      FactModel(id: '3', heading: 'CAN\'T BREATHE THERE', description: 'Mercury\'s thin atmosphere, or exosphere, is composed mostly of oxygen (O2), sodium (Na), hydrogen (H2), helium (He), and potassium (K). '),
-      FactModel(id: '4', heading: 'TOUGH PLACE FOR LIFE', description: 'It is unlikely that life as we know it could survive on Mercury due to solar radiation, and extreme temperatures.'),
-      FactModel(id: '5', heading: 'ROBOTIC VISITORS', description: 'Two NASA missions have explored Mercury: Mariner 10 was the first to fly by Mercury, and MESSENGER was the first to orbit. ESA\'s BepiColombo is on its way to Mercury.'),
+      FactModel(
+        id: '1',
+        heading: 'FASTEST PLANET',
+        description:
+            'Mercury is the fastest planet in our solar system, moving at about 29 miles per second (47 kilometres per second) across space. A planet\'s speed increases as it gets closer to the Sun. Mercury has the shortest year of all the planets in our solar system - 88 days – since it is the quickest planet and travels the smallest distance around the Sun.',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'ROUGH SURFACE',
+        description:
+            'Mercury is a rocky planet, also known as a terrestrial planet. Mercury has a solid, cratered surface, much like the Earth\'s moon.',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'CAN\'T BREATHE THERE',
+        description:
+            'Mercury\'s thin atmosphere, or exosphere, is composed mostly of oxygen (O2), sodium (Na), hydrogen (H2), helium (He), and potassium (K). ',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'TOUGH PLACE FOR LIFE',
+        description:
+            'It is unlikely that life as we know it could survive on Mercury due to solar radiation, and extreme temperatures.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'ROBOTIC VISITORS',
+        description:
+            'Two NASA missions have explored Mercury: Mariner 10 was the first to fly by Mercury, and MESSENGER was the first to orbit. ESA\'s BepiColombo is on its way to Mercury.',
+      ),
     ],
   ),
-  PlanetModel(
+  const PlanetModel(
     id: '2',
     name: 'Venus',
     credits: 'nasa',
@@ -50,14 +75,39 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '0.7 AU (astronomical unit)',
     noOfMoons: '0',
     facts: [
-      FactModel(id: '1', heading: 'LONG DAYS, SHORT YEARS', description: 'Venus rotates very slowly on its axis – one day on Venus lasts 243 Earth days. The planet orbits the Sun faster than Earth, however, so one year on Venus takes only about 225 Earth days, making a Venusian day longer than its year!'),
-      FactModel(id: '2', heading: 'STINKY CLOUDS', description: 'Venus is permanently shrouded in thick, toxic clouds of sulfuric acid that start at an altitude of 28 to 43 miles (45 to 70 kilometers). The clouds smell like rotten eggs!'),
-      FactModel(id: '3', heading: 'TOXIC TWIN', description: 'Venus is often called "Earth\'s twin" because they\'re similar in size and structure, but Venus has extreme surface heat and a dense, toxic atmosphere. If the Sun were as tall as a typical front door, Earth and Venus would each be about the size of a nickel.'),
-      FactModel(id: '4', heading: 'BACKWARD SUNRISE', description: 'Venus rotates backward on its axis compared to most planets in our solar system. This means the Sun rises in the west and sets in the east, opposite of what we see on Earth.'),
-      FactModel(id: '5', heading: 'LIFE ON VENUS', description: 'Venus is an unlikely place for life as we know it, but some scientists theorize microbes might exist high in the clouds where it\'s cooler and the pressure is similar to Earth\'s surface. Phosphine, a possible indicator of microbial life, has been observed in the clouds.'),
+      FactModel(
+        id: '1',
+        heading: 'LONG DAYS, SHORT YEARS',
+        description:
+            'Venus rotates very slowly on its axis – one day on Venus lasts 243 Earth days. The planet orbits the Sun faster than Earth, however, so one year on Venus takes only about 225 Earth days, making a Venusian day longer than its year!',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'STINKY CLOUDS',
+        description:
+            'Venus is permanently shrouded in thick, toxic clouds of sulfuric acid that start at an altitude of 28 to 43 miles (45 to 70 kilometers). The clouds smell like rotten eggs!',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'TOXIC TWIN',
+        description:
+            'Venus is often called "Earth\'s twin" because they\'re similar in size and structure, but Venus has extreme surface heat and a dense, toxic atmosphere. If the Sun were as tall as a typical front door, Earth and Venus would each be about the size of a nickel.',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'BACKWARD SUNRISE',
+        description:
+            'Venus rotates backward on its axis compared to most planets in our solar system. This means the Sun rises in the west and sets in the east, opposite of what we see on Earth.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'LIFE ON VENUS',
+        description:
+            'Venus is an unlikely place for life as we know it, but some scientists theorize microbes might exist high in the clouds where it\'s cooler and the pressure is similar to Earth\'s surface. Phosphine, a possible indicator of microbial life, has been observed in the clouds.',
+      ),
     ],
   ),
-  PlanetModel(
+  const PlanetModel(
     id: '3',
     name: 'Earth',
     credits: 'nasa',
@@ -69,14 +119,39 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '1 AU',
     noOfMoons: '1',
     facts: [
-      FactModel(id: '1', heading: 'PLATE TECTONICS KEEP THE PLANET COMFORTABLE:', description: 'Earth is the only planet in the Solar System with plate tectonics. Basically, the outer crust of the Earth is broken up into regions known as tectonic plates. These are floating on top of the magma interior of the Earth and can move against one another. When two plates collide, one plate will subduct (go underneath another), and where they pull apart, they will allow fresh crust to form.This process is very important, and for a number of reasons. Not only does it lead to tectonic resurfacing and geological activity (i.e. earthquakes, volcanic eruptions, mountain-building, and oceanic trench formation), it is also intrinsic to the carbon cycle. When microscopic plants in the ocean die, they fall to the bottom of the ocean.'),
-      FactModel(id: '2', heading: 'PROTECTIVE SHIELD', description: 'Our atmosphere protects us from incoming meteoroids, most of which break up in our atmosphere before they can strike the surface.'),
-      FactModel(id: '3', heading: 'ORBITAL SCIENCE', description: 'Many orbiting spacecraft study the Earth from above as a whole system—observing the atmosphere, ocean, glaciers, and the solid earth.'),
-      FactModel(id: '4', heading: 'THE EARTH\'S MOLTEN IRON CORE CREATES A MAGNETIC FIELD:', description: 'The Earth is like a great big magnet, with poles at the top and bottom near to the actual geographic poles. The magnetic field it creates extends thousands of kilometers out from the surface of the Earth – forming a region called the "magnetosphere". Scientists think that this magnetic field is generated by the molten outer core of the Earth, where heat creates convection motions of conducting materials to generate electric currents.'),
-      FactModel(id: '5', heading: 'EARTH IS MOSTLY IRON, OXYGEN AND SILICON:', description: 'If you could separate the Earth out into piles of material, you\'d get 32.1 % iron, 30.1% oxygen, 15.1% silicon, and 13.9% magnesium. Of course, most of this iron is actually located at the core of the Earth. If you could actually get down and sample the core, it would be 88% iron. And if you sampled the Earth\'s crust, you\'d find that 47% of it is oxygen.'),
+      FactModel(
+        id: '1',
+        heading: 'PLATE TECTONICS KEEP THE PLANET COMFORTABLE:',
+        description:
+            'Earth is the only planet in the Solar System with plate tectonics. Basically, the outer crust of the Earth is broken up into regions known as tectonic plates. These are floating on top of the magma interior of the Earth and can move against one another. When two plates collide, one plate will subduct (go underneath another), and where they pull apart, they will allow fresh crust to form.This process is very important, and for a number of reasons. Not only does it lead to tectonic resurfacing and geological activity (i.e. earthquakes, volcanic eruptions, mountain-building, and oceanic trench formation), it is also intrinsic to the carbon cycle. When microscopic plants in the ocean die, they fall to the bottom of the ocean.',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'PROTECTIVE SHIELD',
+        description:
+            'Our atmosphere protects us from incoming meteoroids, most of which break up in our atmosphere before they can strike the surface.',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'ORBITAL SCIENCE',
+        description:
+            'Many orbiting spacecraft study the Earth from above as a whole system—observing the atmosphere, ocean, glaciers, and the solid earth.',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'THE EARTH\'S MOLTEN IRON CORE CREATES A MAGNETIC FIELD:',
+        description:
+            'The Earth is like a great big magnet, with poles at the top and bottom near to the actual geographic poles. The magnetic field it creates extends thousands of kilometers out from the surface of the Earth – forming a region called the "magnetosphere". Scientists think that this magnetic field is generated by the molten outer core of the Earth, where heat creates convection motions of conducting materials to generate electric currents.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'EARTH IS MOSTLY IRON, OXYGEN AND SILICON:',
+        description:
+            'If you could separate the Earth out into piles of material, you\'d get 32.1 % iron, 30.1% oxygen, 15.1% silicon, and 13.9% magnesium. Of course, most of this iron is actually located at the core of the Earth. If you could actually get down and sample the core, it would be 88% iron. And if you sampled the Earth\'s crust, you\'d find that 47% of it is oxygen.',
+      ),
     ],
   ),
-  PlanetModel(
+  const PlanetModel(
     id: '4',
     name: 'Mars',
     credits: 'nasa',
@@ -88,14 +163,39 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '1.5 AU',
     noOfMoons: '2',
     facts: [
-      FactModel(id: '1', heading: 'LONGER DAYS', description: 'One day on Mars takes a little over 24 hours. Mars makes a complete orbit around the Sun (a year in Martian time) in 687 Earth days.'),
-      FactModel(id: '2', heading: 'RUGGED TERRAIN', description: 'Mars is a rocky planet. Its solid surface has been altered by volcanoes, impacts, winds, crustal movement and chemical reactions.'),
-      FactModel(id: '3', heading: 'RUSTY PLANET', description: 'Mars is known as the Red Planet because iron minerals in the Martian soil oxidize, or rust, causing the soil and atmosphere to look red.'),
-      FactModel(id: '4', heading: 'TOUGH PLACE FOR LIFE', description: 'At this time, Mars surface cannot support life as we know it. Current missions are determining Mars\' past and future potential for life.'),
-      FactModel(id: '5', heading: 'BRING A SPACESUIT', description: 'Mars has a thin atmosphere made up mostly of carbon dioxide (CO2), argon (Ar), nitrogen (N2), and a small amount of oxygen and water vapor.'),
+      FactModel(
+        id: '1',
+        heading: 'LONGER DAYS',
+        description:
+            'One day on Mars takes a little over 24 hours. Mars makes a complete orbit around the Sun (a year in Martian time) in 687 Earth days.',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'RUGGED TERRAIN',
+        description:
+            'Mars is a rocky planet. Its solid surface has been altered by volcanoes, impacts, winds, crustal movement and chemical reactions.',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'RUSTY PLANET',
+        description:
+            'Mars is known as the Red Planet because iron minerals in the Martian soil oxidize, or rust, causing the soil and atmosphere to look red.',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'TOUGH PLACE FOR LIFE',
+        description:
+            'At this time, Mars surface cannot support life as we know it. Current missions are determining Mars\' past and future potential for life.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'BRING A SPACESUIT',
+        description:
+            'Mars has a thin atmosphere made up mostly of carbon dioxide (CO2), argon (Ar), nitrogen (N2), and a small amount of oxygen and water vapor.',
+      ),
     ],
   ),
-  PlanetModel(
+  const PlanetModel(
     id: '5',
     name: 'Jupiter',
     credits: 'nasa',
@@ -107,15 +207,45 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '5.2 AU',
     noOfMoons: '79',
     facts: [
-      FactModel(id: '1', heading: 'THE GRANDEST PLANET', description: 'Eleven Earths could fit across Jupiter\'s equator. If Earth were the size of a grape, Jupiter would be the size of a basketball.'),
-      FactModel(id: '2', heading: 'SHORT DAY/LONG YEAR', description: 'Jupiter rotates once about every 10 hours (a Jovian day), but takes about 12 Earth years to complete one orbit of the Sun (a Jovian year).'),
-      FactModel(id: '3', heading: 'WHAT\'S INSIDE', description: 'Jupiter is a gas giant and so lacks an Earth-like surface. If it has a solid inner core at all, it\'s likely only about the size of Earth.'),
-      FactModel(id: '4', heading: 'RINGED WORLD', description: 'In 1979 the Voyager mission discovered Jupiter\'s faint ring system. All four giant planets in our solar system have ring systems.'),
-      FactModel(id: '5', heading: 'INGREDIENTS FOR LIFE?', description: 'Jupiter cannot support life as we know it. But some of Jupiter\'s moons have oceans beneath their crusts that might support life.'),
-      FactModel(id: '6', heading: 'SUPER STORM', description: 'Jupiter\'s Great Red Spot is a gigantic storm that\'s about twice the size of Earth and has raged for over a century.'),
+      FactModel(
+        id: '1',
+        heading: 'THE GRANDEST PLANET',
+        description:
+            'Eleven Earths could fit across Jupiter\'s equator. If Earth were the size of a grape, Jupiter would be the size of a basketball.',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'SHORT DAY/LONG YEAR',
+        description:
+            'Jupiter rotates once about every 10 hours (a Jovian day), but takes about 12 Earth years to complete one orbit of the Sun (a Jovian year).',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'WHAT\'S INSIDE',
+        description:
+            'Jupiter is a gas giant and so lacks an Earth-like surface. If it has a solid inner core at all, it\'s likely only about the size of Earth.',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'RINGED WORLD',
+        description:
+            'In 1979 the Voyager mission discovered Jupiter\'s faint ring system. All four giant planets in our solar system have ring systems.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'INGREDIENTS FOR LIFE?',
+        description:
+            'Jupiter cannot support life as we know it. But some of Jupiter\'s moons have oceans beneath their crusts that might support life.',
+      ),
+      FactModel(
+        id: '6',
+        heading: 'SUPER STORM',
+        description:
+            'Jupiter\'s Great Red Spot is a gigantic storm that\'s about twice the size of Earth and has raged for over a century.',
+      ),
     ],
   ),
-  PlanetModel(
+  const PlanetModel(
     id: '6',
     name: 'Saturn',
     credits: 'nasa',
@@ -127,18 +257,63 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '9.5 AU',
     noOfMoons: '62',
     facts: [
-      FactModel(id: '1', heading: 'A COLOSSAL PLANET', description: 'Nine Earths side by side would almost span Saturn\'s diameter. That doesn\'t include Saturn\'s rings.'),
-      FactModel(id: '2', heading: 'IN DIM LIGHT', description: 'Saturn is the sixth planet from our Sun (a star) and orbits at a distance of about 886 million miles (1.4 billion kilometers) from the Sun.'),
-      FactModel(id: '3', heading: 'SHORT DAY, LONG YEAR', description: 'Saturn takes about 10.7 hours (no one knows precisely) to rotate on its axis once—a Saturn "day"—and 29 Earth years to orbit the sun.'),
-      FactModel(id: '4', heading: 'GAS GIANT', description: 'Saturn is a gas-giant planet and therefore does not have a solid surface like Earth\'s. But it might have a solid core somewhere in there.'),
-      FactModel(id: '5', heading: 'HOT AIR', description: 'Saturn\'s atmosphere is made up mostly of hydrogen (H2) and helium (He).'),
-      FactModel(id: '6', heading: 'MINI SOLAR SYSTEM', description: 'Saturn has 53 known moons with an additional 29 moons awaiting confirmation of their discovery—that is a total of 82 moons.'),
-      FactModel(id: '7', heading: 'RARE DESTINATION', description: 'Few missions have visited Saturn: Pioneer 11 and Voyagers 1 and 2 flew by; But Cassini orbited Saturn 294 times from 2004 to 2017.'),
-      FactModel(id: '8', heading: 'LIFELESS BEHEMOTH', description: 'Saturn cannot support life as we know it, but some of Saturn\'s moons have conditions that might support life.'),
-      FactModel(id: '9', heading: 'ADD A DASH OF EARTH', description: 'About two tons of Saturn\'s mass came from Earth—the Cassini spacecraft was intentionally vaporized in Saturn\'s atmosphere in 2017.'),
+      FactModel(
+        id: '1',
+        heading: 'A COLOSSAL PLANET',
+        description:
+            'Nine Earths side by side would almost span Saturn\'s diameter. That doesn\'t include Saturn\'s rings.',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'IN DIM LIGHT',
+        description:
+            'Saturn is the sixth planet from our Sun (a star) and orbits at a distance of about 886 million miles (1.4 billion kilometers) from the Sun.',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'SHORT DAY, LONG YEAR',
+        description:
+            'Saturn takes about 10.7 hours (no one knows precisely) to rotate on its axis once—a Saturn "day"—and 29 Earth years to orbit the sun.',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'GAS GIANT',
+        description:
+            'Saturn is a gas-giant planet and therefore does not have a solid surface like Earth\'s. But it might have a solid core somewhere in there.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'HOT AIR',
+        description:
+            'Saturn\'s atmosphere is made up mostly of hydrogen (H2) and helium (He).',
+      ),
+      FactModel(
+        id: '6',
+        heading: 'MINI SOLAR SYSTEM',
+        description:
+            'Saturn has 53 known moons with an additional 29 moons awaiting confirmation of their discovery—that is a total of 82 moons.',
+      ),
+      FactModel(
+        id: '7',
+        heading: 'RARE DESTINATION',
+        description:
+            'Few missions have visited Saturn: Pioneer 11 and Voyagers 1 and 2 flew by; But Cassini orbited Saturn 294 times from 2004 to 2017.',
+      ),
+      FactModel(
+        id: '8',
+        heading: 'LIFELESS BEHEMOTH',
+        description:
+            'Saturn cannot support life as we know it, but some of Saturn\'s moons have conditions that might support life.',
+      ),
+      FactModel(
+        id: '9',
+        heading: 'ADD A DASH OF EARTH',
+        description:
+            'About two tons of Saturn\'s mass came from Earth—the Cassini spacecraft was intentionally vaporized in Saturn\'s atmosphere in 2017.',
+      ),
     ],
   ),
-  PlanetModel(
+  const PlanetModel(
     id: '7',
     name: 'Uranus',
     credits: 'nasa',
@@ -150,17 +325,56 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '19.8 AU',
     noOfMoons: '27',
     facts: [
-      FactModel(id: '1', heading: 'HUGE', description: 'Uranus is about four times wider than Earth. If Earth were a large apple, Uranus would be the size of a basketball.'),
-      FactModel(id: '2', heading: 'SHORT-ISH DAY, LONGISH YEAR', description: 'Uranus takes about 17 hours to rotate once (a Uranian day), and about 84 Earth years to complete an orbit of the Sun (a Uranian year).'),
-      FactModel(id: '3', heading: 'ICE GIANT', description: 'Uranus is an ice giant. Most of its mass is a hot, dense fluid of "icy" materials – water, methane and ammonia – above a small rocky core.'),
-      FactModel(id: '4', heading: 'GASSY', description: 'Uranus has an atmosphere made mostly of molecular hydrogen and atomic helium, with a small amount of methane.'),
-      FactModel(id: '5', heading: 'THE OTHER RINGED WORLD', description: 'Uranus has 13 known rings. The inner rings are narrow and dark and the outer rings are brightly colored.'),
-      FactModel(id: '6', heading: 'A BIT LONELY', description: 'Voyager 2 is the only spacecraft to fly by Uranus. No spacecraft has orbited this distant planet to study it at length and up close.'),
-      FactModel(id: '7', heading: 'LIFELESS', description: 'Uranus cannot support life as we know it.'),
-      FactModel(id: '8', heading: 'ONE COOL FACT', description: 'Like Venus, Uranus rotates east to west. But Uranus is unique in that it rotates on its side.'),
+      FactModel(
+        id: '1',
+        heading: 'HUGE',
+        description:
+            'Uranus is about four times wider than Earth. If Earth were a large apple, Uranus would be the size of a basketball.',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'SHORT-ISH DAY, LONGISH YEAR',
+        description:
+            'Uranus takes about 17 hours to rotate once (a Uranian day), and about 84 Earth years to complete an orbit of the Sun (a Uranian year).',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'ICE GIANT',
+        description:
+            'Uranus is an ice giant. Most of its mass is a hot, dense fluid of "icy" materials – water, methane and ammonia – above a small rocky core.',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'GASSY',
+        description:
+            'Uranus has an atmosphere made mostly of molecular hydrogen and atomic helium, with a small amount of methane.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'THE OTHER RINGED WORLD',
+        description:
+            'Uranus has 13 known rings. The inner rings are narrow and dark and the outer rings are brightly colored.',
+      ),
+      FactModel(
+        id: '6',
+        heading: 'A BIT LONELY',
+        description:
+            'Voyager 2 is the only spacecraft to fly by Uranus. No spacecraft has orbited this distant planet to study it at length and up close.',
+      ),
+      FactModel(
+        id: '7',
+        heading: 'LIFELESS',
+        description: 'Uranus cannot support life as we know it.',
+      ),
+      FactModel(
+        id: '8',
+        heading: 'ONE COOL FACT',
+        description:
+            'Like Venus, Uranus rotates east to west. But Uranus is unique in that it rotates on its side.',
+      ),
     ],
   ),
-  PlanetModel(
+  const PlanetModel(
     id: '8',
     name: 'Neptune',
     credits: 'nasa',
@@ -172,13 +386,48 @@ final List<PlanetModel> _planets = [
     distanceFromSun: '30.1 AU',
     noOfMoons: '14',
     facts: [
-      FactModel(id: '1', heading: 'GIANT', description: 'Neptune is about four times wider than Earth. If Earth were a large apple, Neptune would be the size of a basketball.'),
-      FactModel(id: '2', heading: 'SHORT DAY, LONG YEAR', description: 'Neptune takes about 16 hours to rotate once (a Neptunian day), and about 165 Earth years to orbit the sun (a Neptunian year).'),
-      FactModel(id: '3', heading: 'ICE GIANT', description: 'Neptune is an ice giant. Most of its mass is a hot, dense fluid of "icy" materials – water, methane and ammonia – above a small rocky core.'),
-      FactModel(id: '4', heading: 'GASSY', description: 'Neptune\'s atmosphere is made up mostly of molecular hydrogen, atomic helium and methane.'),
-      FactModel(id: '5', heading: 'FAINT RINGS', description: 'Neptune has at least five main rings and four more ring arcs, which are clumps of dust and debris likely formed by the gravity of a nearby moon.'),
-      FactModel(id: '6', heading: 'ONE VOYAGE THERE', description: 'Voyager 2 is the only spacecraft to have visited Neptune. No spacecraft has orbited this distant planet to study it at length and up close.'),
-      FactModel(id: '7', heading: 'ONE COOL FACT', description: 'Because of dwarf planet Pluto\'s elliptical orbit, Pluto is sometimes closer to the Sun (and us) than Neptune is.'),
+      FactModel(
+        id: '1',
+        heading: 'GIANT',
+        description:
+            'Neptune is about four times wider than Earth. If Earth were a large apple, Neptune would be the size of a basketball.',
+      ),
+      FactModel(
+        id: '2',
+        heading: 'SHORT DAY, LONG YEAR',
+        description:
+            'Neptune takes about 16 hours to rotate once (a Neptunian day), and about 165 Earth years to orbit the sun (a Neptunian year).',
+      ),
+      FactModel(
+        id: '3',
+        heading: 'ICE GIANT',
+        description:
+            'Neptune is an ice giant. Most of its mass is a hot, dense fluid of "icy" materials – water, methane and ammonia – above a small rocky core.',
+      ),
+      FactModel(
+        id: '4',
+        heading: 'GASSY',
+        description:
+            'Neptune\'s atmosphere is made up mostly of molecular hydrogen, atomic helium and methane.',
+      ),
+      FactModel(
+        id: '5',
+        heading: 'FAINT RINGS',
+        description:
+            'Neptune has at least five main rings and four more ring arcs, which are clumps of dust and debris likely formed by the gravity of a nearby moon.',
+      ),
+      FactModel(
+        id: '6',
+        heading: 'ONE VOYAGE THERE',
+        description:
+            'Voyager 2 is the only spacecraft to have visited Neptune. No spacecraft has orbited this distant planet to study it at length and up close.',
+      ),
+      FactModel(
+        id: '7',
+        heading: 'ONE COOL FACT',
+        description:
+            'Because of dwarf planet Pluto\'s elliptical orbit, Pluto is sometimes closer to the Sun (and us) than Neptune is.',
+      ),
     ],
   ),
 ];
@@ -188,7 +437,7 @@ final List<PlanetModel> _planets = [
 // ---------------------------------------------------------------------------
 
 final List<ArticleModel> _articles = [
-  ArticleModel(
+  const ArticleModel(
     id: '1',
     heading: 'Origin of the Universe',
     description:
@@ -205,7 +454,7 @@ final List<ArticleModel> _articles = [
       ),
     ],
   ),
-  ArticleModel(
+  const ArticleModel(
     id: '2',
     heading: 'Big Bang Theory',
     description:
@@ -228,7 +477,7 @@ final List<ArticleModel> _articles = [
       ),
     ],
   ),
-  ArticleModel(
+  const ArticleModel(
     id: '3',
     heading: 'Steady State Theory',
     description:

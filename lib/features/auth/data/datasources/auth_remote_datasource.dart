@@ -14,7 +14,10 @@ abstract class AuthRemoteDataSource {
   Stream<UserEntity?> get authStateChanges;
   UserEntity? get currentUser;
   Future<UserModel> signInWithEmailAndPassword(String email, String password);
-  Future<UserModel> createUserWithEmailAndPassword(String email, String password);
+  Future<UserModel> createUserWithEmailAndPassword(
+    String email,
+    String password,
+  );
   Future<GoogleSignInResult> signInWithGoogle();
   Future<void> signOut();
   Future<void> resetPassword(String email);
@@ -22,6 +25,12 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final _auth = FirebaseAuth.instance;
+  final _googleSignIn = GoogleSignIn.instance;
+  Future<void>? _googleSignInInitialization;
+
+  Future<void> _ensureGoogleSignInInitialized() {
+    return _googleSignInInitialization ??= _googleSignIn.initialize();
+  }
 
   @override
   Stream<UserEntity?> get authStateChanges {
@@ -40,10 +49,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> signInWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       final cred = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
       return UserModel(id: cred.user!.uid, email: cred.user!.email);
     } on FirebaseAuthException catch (e) {
       throw _mapFirebaseError(e);
@@ -52,10 +65,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> createUserWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
       return UserModel(id: cred.user!.uid, email: cred.user!.email);
     } on FirebaseAuthException catch (e) {
       throw _mapFirebaseError(e);
@@ -65,13 +82,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<GoogleSignInResult> signInWithGoogle() async {
     try {
-      final googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        throw const AuthException('Google sign-in was cancelled');
+      await _ensureGoogleSignInInitialized();
+      if (!_googleSignIn.supportsAuthenticate()) {
+        throw const AuthException(
+          'Google sign-in is not supported on this platform.',
+        );
       }
-      final googleAuth = await googleUser.authentication;
+      final googleUser = await _googleSignIn.authenticate();
+      final googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
       final data = await _auth.signInWithCredential(credential);
@@ -86,6 +105,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
     } on FirebaseAuthException catch (e) {
       throw _mapFirebaseError(e);
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        throw const AuthException('Google sign-in was cancelled');
+      }
+      throw AuthException(e.description ?? 'Google sign-in failed');
     } on AuthException {
       rethrow;
     } catch (e) {
@@ -109,23 +133,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     switch (e.code) {
       case 'weak-password':
         return const AuthException(
-            'The password provided is too weak.', code: 'weak-password');
+          'The password provided is too weak.',
+          code: 'weak-password',
+        );
       case 'email-already-in-use':
         return const AuthException(
-            'An account already exists for that email.',
-            code: 'email-already-in-use');
+          'An account already exists for that email.',
+          code: 'email-already-in-use',
+        );
       case 'user-not-found':
-        return const AuthException('No user found for that email.',
-            code: 'user-not-found');
+        return const AuthException(
+          'No user found for that email.',
+          code: 'user-not-found',
+        );
       case 'wrong-password':
-        return const AuthException('Incorrect password.',
-            code: 'wrong-password');
+        return const AuthException(
+          'Incorrect password.',
+          code: 'wrong-password',
+        );
       case 'invalid-email':
-        return const AuthException('Invalid email address.',
-            code: 'invalid-email');
+        return const AuthException(
+          'Invalid email address.',
+          code: 'invalid-email',
+        );
       default:
-        return AuthException(e.message ?? 'Authentication failed',
-            code: e.code);
+        return AuthException(
+          e.message ?? 'Authentication failed',
+          code: e.code,
+        );
     }
   }
 }

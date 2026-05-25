@@ -17,7 +17,7 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
   final GetArticles getArticles;
 
   ExploreBloc({required this.getPlanets, required this.getArticles})
-      : super(const ExploreInitial()) {
+    : super(const ExploreInitial()) {
     on<LoadExploreDataEvent>(_onLoadExploreData);
   }
 

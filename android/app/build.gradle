@@ -31,10 +31,12 @@ if (keystorePropertiesFile.exists()) {
        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def hasReleaseKeystore = keystoreProperties['storeFile'] != null
 
 android {
     namespace "com.example.singularity"
     compileSdkVersion 36
+    ndkVersion "28.2.13676358"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -68,7 +70,7 @@ android {
    }
    buildTypes {
        release {
-           signingConfig signingConfigs.release
+           signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
        }
    }
 

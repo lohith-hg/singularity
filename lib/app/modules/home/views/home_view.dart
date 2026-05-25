@@ -1,21 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:singularity/features/cosmo_daily/presentation/bloc/cosmo_daily_bloc.dart';
-import 'package:singularity/features/cosmo_daily/presentation/pages/cosmo_daily_page.dart';
-import 'package:singularity/features/explore/presentation/bloc/explore_bloc.dart';
-import 'package:singularity/features/explore/presentation/pages/explore_page.dart';
-import 'package:singularity/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:singularity/features/profile/presentation/pages/profile_page.dart';
-import 'package:singularity/features/sky_stories/presentation/bloc/sky_stories_bloc.dart';
-import 'package:singularity/features/sky_stories/presentation/pages/sky_stories_page.dart';
-import 'package:singularity/features/vintage_space/presentation/bloc/vintage_space_bloc.dart';
-import 'package:singularity/features/vintage_space/presentation/pages/vintage_space_page.dart';
-import 'package:singularity/injection_container.dart';
-import '../../../constants/colors.dart';
+import '../../../../app/widgets/s_nav_bar.dart';
+import '../../../../features/cosmo_daily/presentation/bloc/cosmo_daily_bloc.dart';
+import '../../../../features/cosmo_daily/presentation/pages/cosmo_daily_page.dart';
+import '../../../../features/explore/presentation/bloc/explore_bloc.dart';
+import '../../../../features/explore/presentation/pages/explore_page.dart';
+import '../../../../features/mars_rover/presentation/bloc/mars_rover_bloc.dart';
+import '../../../../features/mars_rover/presentation/pages/mars_rover_page.dart';
+import '../../../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../../../features/profile/presentation/pages/profile_page.dart';
+import '../../../../features/saved/presentation/bloc/saved_bloc.dart';
+import '../../../../injection_container.dart';
+import 'tracker_page.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -24,84 +24,49 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
 
-  // Each BLoC tab is wrapped in its own BlocProvider so the BLoC's lifetime
-  // is tied to the widget tree, not to a global service.
-  static final List<Widget> screens = [
-    BlocProvider(
-      create: (_) => sl<CosmoDailyBloc>(),
-      child: const CosmoDailyPage(),
-    ),
-    BlocProvider(
-      create: (_) => sl<SkyStoriesBloc>(),
-      child: const SkyStoriesPage(),
-    ),
-    BlocProvider(
-      create: (_) => sl<VintageSpaceBloc>(),
-      child: const VintageSpacePage(),
-    ),
-    BlocProvider(
-      create: (_) => sl<ExploreBloc>()..add(LoadExploreDataEvent()),
-      child: const ExplorePage(),
-    ),
-    BlocProvider(
-      create: (_) => sl<ProfileBloc>(),
-      child: const ProfilePage(),
-    ),
-  ];
+  late final List<Widget> _screens;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      BlocProvider(
+        create: (_) => sl<CosmoDailyBloc>(),
+        child: const CosmoDailyPage(),
+      ),
+      BlocProvider(
+        create: (_) => sl<ExploreBloc>()..add(LoadExploreDataEvent()),
+        child: const ExplorePage(),
+      ),
+      const TrackerPage(),
+      BlocProvider(
+        create: (_) => sl<MarsRoverBloc>()..add(LoadAllRoversEvent()),
+        child: const MarsRoverPage(),
+      ),
+      BlocProvider(
+        create: (_) => sl<ProfileBloc>(),
+        child: const ProfilePage(),
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: screens.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: primaryColor,
-        selectedLabelStyle: TextStyle(
-            color: Colors.grey.shade200,
-            fontSize: 14,
-            fontFamily: GoogleFonts.titilliumWeb().fontFamily),
-        unselectedLabelStyle: TextStyle(
-            color: Colors.grey.shade200,
-            fontSize: 14,
-            fontFamily: GoogleFonts.titilliumWeb().fontFamily),
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.public),
-            backgroundColor: Colors.black,
-            label: 'Cosmo Daily',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article),
-            backgroundColor: Colors.black,
-            label: 'Sky Stories',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.camera),
-            backgroundColor: Colors.black,
-            label: 'Vintage Space',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            backgroundColor: Colors.black,
-            label: 'Explore',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            backgroundColor: Colors.black,
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Colors.white,
-        onTap: _onItemTapped,
+    return BlocProvider(
+      create: (_) {
+        final bloc = sl<SavedBloc>();
+        final uid = FirebaseAuth.instance.currentUser?.uid;
+        if (uid != null) bloc.add(LoadSavedItemsEvent(uid));
+        return bloc;
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0A0A0F),
+        extendBody: true,
+        body: IndexedStack(index: _selectedIndex, children: _screens),
+        bottomNavigationBar: SNavBar(
+          selectedIndex: _selectedIndex,
+          onTap: (i) => setState(() => _selectedIndex = i),
+        ),
       ),
     );
   }

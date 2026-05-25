@@ -6,8 +6,11 @@ class SignUpWithEmailParams {
   final String name;
   final String email;
   final String password;
-  const SignUpWithEmailParams(
-      {required this.name, required this.email, required this.password});
+  const SignUpWithEmailParams({
+    required this.name,
+    required this.email,
+    required this.password,
+  });
 }
 
 // Orchestrates account creation + initial Firestore profile in one step.

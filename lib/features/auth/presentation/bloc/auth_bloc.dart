@@ -40,9 +40,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignOutEvent>(_onSignOut);
     on<ResetPasswordEvent>(_onResetPassword);
 
-    _authSub = getAuthState(NoParams()).listen(
-      (user) => add(AuthStateChangedEvent(user)),
-    );
+    _authSub = getAuthState(
+      NoParams(),
+    ).listen((user) => add(AuthStateChangedEvent(user)));
   }
 
   @override
@@ -52,7 +52,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onAuthStateChanged(
-      AuthStateChangedEvent event, Emitter<AuthState> emit) {
+    AuthStateChangedEvent event,
+    Emitter<AuthState> emit,
+  ) {
     if (event.user != null) {
       emit(AuthAuthenticated(event.user!));
     } else {
@@ -61,11 +63,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onSignInWithEmail(
-      SignInWithEmailEvent event, Emitter<AuthState> emit) async {
+    SignInWithEmailEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoading());
     try {
       await signInWithEmail(
-          SignInWithEmailParams(email: event.email, password: event.password));
+        SignInWithEmailParams(email: event.email, password: event.password),
+      );
       // Navigation is handled by the AuthStateChangedEvent that fires
       // automatically when Firebase updates the auth state.
     } catch (e) {
@@ -74,18 +79,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onSignUpWithEmail(
-      SignUpWithEmailEvent event, Emitter<AuthState> emit) async {
+    SignUpWithEmailEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoading());
     try {
-      await signUpWithEmail(SignUpWithEmailParams(
-          name: event.name, email: event.email, password: event.password));
+      await signUpWithEmail(
+        SignUpWithEmailParams(
+          name: event.name,
+          email: event.email,
+          password: event.password,
+        ),
+      );
     } catch (e) {
       emit(_mapError(e));
     }
   }
 
   Future<void> _onSignInWithGoogle(
-      SignInWithGoogleEvent event, Emitter<AuthState> emit) async {
+    SignInWithGoogleEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoading());
     try {
       await signInWithGoogle();
@@ -94,8 +108,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onSignOut(
-      SignOutEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onSignOut(SignOutEvent event, Emitter<AuthState> emit) async {
     try {
       await signOut(NoParams());
       // AuthUnauthenticated will be emitted via AuthStateChangedEvent stream.
@@ -105,7 +118,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onResetPassword(
-      ResetPasswordEvent event, Emitter<AuthState> emit) async {
+    ResetPasswordEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthLoading());
     try {
       await resetPassword(event.email);

@@ -12,7 +12,7 @@ class CosmoDailyBloc extends Bloc<CosmoDailyEvent, CosmoDailyState> {
   final GetApodPictures getApodPictures;
 
   CosmoDailyBloc({required this.getApodPictures})
-      : super(const CosmoDailyInitial()) {
+    : super(const CosmoDailyInitial()) {
     on<LoadCosmoDailyEvent>(_onLoad);
   }
 

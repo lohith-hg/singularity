@@ -17,4 +17,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<void> createUserProfile(UserEntity user) =>
       dataSource.createUserProfile(user);
+
+  @override
+  Future<void> incrementWallpaperCount(String userId) =>
+      dataSource.incrementWallpaperCount(userId);
 }

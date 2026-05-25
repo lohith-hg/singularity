@@ -12,11 +12,8 @@ class FactModel {
     required this.description,
   });
 
-  FactEntity toEntity() => FactEntity(
-        id: id,
-        heading: heading,
-        description: description,
-      );
+  FactEntity toEntity() =>
+      FactEntity(id: id, heading: heading, description: description);
 }
 
 class PlanetModel {
@@ -45,15 +42,15 @@ class PlanetModel {
   });
 
   PlanetEntity toEntity() => PlanetEntity(
-        id: id,
-        name: name,
-        credits: credits,
-        imgUrl: imgUrl,
-        description: description,
-        lengthOfYear: lengthOfYear,
-        gravity: gravity,
-        distanceFromSun: distanceFromSun,
-        noOfMoons: noOfMoons,
-        facts: facts.map((f) => f.toEntity()).toList(),
-      );
+    id: id,
+    name: name,
+    credits: credits,
+    imgUrl: imgUrl,
+    description: description,
+    lengthOfYear: lengthOfYear,
+    gravity: gravity,
+    distanceFromSun: distanceFromSun,
+    noOfMoons: noOfMoons,
+    facts: facts.map((f) => f.toEntity()).toList(),
+  );
 }

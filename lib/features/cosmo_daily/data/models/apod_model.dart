@@ -1,8 +1,14 @@
 import 'dart:convert';
 import '../../../shared/entities/apod_entity.dart';
 
-List<ApodModel> apodListFromJson(String str) =>
-    List<ApodModel>.from(json.decode(str).map((x) => ApodModel.fromJson(x)));
+List<ApodModel> apodListFromJson(String str) {
+  final decoded = json.decode(str);
+  final items = decoded is List ? decoded : [decoded];
+  return items
+      .whereType<Map<String, dynamic>>()
+      .map(ApodModel.fromJson)
+      .toList();
+}
 
 class ApodModel {
   final String copyright;
@@ -26,24 +32,24 @@ class ApodModel {
   });
 
   factory ApodModel.fromJson(Map<String, dynamic> json) => ApodModel(
-        copyright: json['copyright'] ?? 'NASA',
-        date: DateTime.parse(json['date']),
-        explanation: json['explanation'],
-        hdurl: json['hdurl'] ?? '',
-        mediaType: json['media_type'],
-        serviceVersion: json['service_version'],
-        title: json['title'],
-        url: json['url'],
-      );
+    copyright: json['copyright'] as String? ?? 'NASA',
+    date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+    explanation: json['explanation'] as String? ?? '',
+    hdurl: json['hdurl'] as String? ?? '',
+    mediaType: json['media_type'] as String? ?? 'image',
+    serviceVersion: json['service_version'] as String? ?? 'v1',
+    title: json['title'] as String? ?? 'Astronomy Picture of the Day',
+    url: (json['url'] ?? json['thumbnail_url'] ?? '') as String,
+  );
 
   ApodEntity toEntity() => ApodEntity(
-        copyright: copyright,
-        date: date,
-        explanation: explanation,
-        hdurl: hdurl,
-        mediaType: mediaType,
-        serviceVersion: serviceVersion,
-        title: title,
-        url: url,
-      );
+    copyright: copyright,
+    date: date,
+    explanation: explanation,
+    hdurl: hdurl,
+    mediaType: mediaType,
+    serviceVersion: serviceVersion,
+    title: title,
+    url: url,
+  );
 }

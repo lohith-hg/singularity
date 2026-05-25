@@ -1,5 +1,6 @@
-import 'package:http/http.dart' as http;
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/constants/nasa_api.dart';
+import '../../../../core/network/api_client.dart';
 import '../models/apod_model.dart';
 
 abstract class ApodRemoteDataSource {
@@ -10,29 +11,40 @@ abstract class ApodRemoteDataSource {
 }
 
 class ApodRemoteDataSourceImpl implements ApodRemoteDataSource {
-  static const _apiKey = 'Ah79iXNawQ4pH4Yl9j29zLaf8fBMabbE1dB6GtvW';
+  const ApodRemoteDataSourceImpl({ApiClient apiClient = const ApiClient()})
+    : _apiClient = apiClient;
+
+  final ApiClient _apiClient;
 
   @override
   Future<List<ApodModel>> getApodPictures({
     required DateTime startDate,
     required int daysBack,
   }) async {
-    // Subtract 9 hours to avoid getting "today" before NASA publishes it
-    final latestDate = startDate.subtract(const Duration(hours: 9));
-    final oldestDate = startDate.subtract(Duration(days: daysBack));
+    final latestDate = _safeLatestDate(startDate);
+    final oldestDate = latestDate.subtract(Duration(days: daysBack));
 
-    final uri = Uri.parse(
-      'https://api.nasa.gov/planetary/apod'
-      '?api_key=$_apiKey'
-      '&start_date=${_formatDate(oldestDate)}'
-      '&end_date=${_formatDate(latestDate)}',
-    );
+    final uri = Uri.https('api.nasa.gov', '/planetary/apod', {
+      'api_key': NasaApi.apiKey,
+      'start_date': _formatDate(oldestDate),
+      'end_date': _formatDate(latestDate),
+      'thumbs': 'true',
+    });
 
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
+    final response = await _apiClient.get(uri, label: 'NASA APOD');
+    try {
       return apodListFromJson(response.body);
+    } catch (_) {
+      throw const ServerException(
+        'NASA APOD returned data this app could not read.',
+      );
     }
-    throw ServerException('NASA APOD API error: ${response.statusCode}');
+  }
+
+  DateTime _safeLatestDate(DateTime date) {
+    final utc = date.toUtc();
+    final safe = utc.hour < 12 ? utc.subtract(const Duration(days: 1)) : utc;
+    return DateTime.utc(safe.year, safe.month, safe.day);
   }
 
   String _formatDate(DateTime date) =>

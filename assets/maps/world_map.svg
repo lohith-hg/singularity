@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 180" fill="none">
+  <!-- Lat/lon grid -->
+  <line x1="0" y1="45" x2="360" y2="45" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+  <line x1="0" y1="90" x2="360" y2="90" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+  <line x1="0" y1="135" x2="360" y2="135" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+  <line x1="60" y1="0" x2="60" y2="180" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+  <line x1="120" y1="0" x2="120" y2="180" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+  <line x1="180" y1="0" x2="180" y2="180" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+  <line x1="240" y1="0" x2="240" y2="180" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+  <line x1="300" y1="0" x2="300" y2="180" stroke="rgba(244,242,238,0.06)" stroke-width="0.5"/>
+
+  <!-- North America -->
+  <path d="M 55 30 L 60 28 L 70 25 L 80 22 L 90 24 L 95 28 L 100 32 L 105 38 L 108 45 L 105 52 L 100 58 L 95 62 L 90 68 L 85 72 L 80 75 L 75 78 L 72 82 L 70 85 L 65 88 L 60 90 L 55 88 L 52 84 L 50 80 L 48 75 L 46 68 L 45 62 L 44 55 L 44 48 L 46 42 L 50 36 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Central America -->
+  <path d="M 72 88 L 75 92 L 73 96 L 70 98 L 68 95 L 70 91 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Greenland -->
+  <path d="M 80 10 L 90 8 L 100 10 L 105 15 L 102 22 L 95 25 L 86 24 L 80 18 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- South America -->
+  <path d="M 72 98 L 78 96 L 85 98 L 92 102 L 96 108 L 98 116 L 96 124 L 92 130 L 86 135 L 80 138 L 74 136 L 70 130 L 68 122 L 66 114 L 66 106 L 68 100 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Europe -->
+  <path d="M 155 28 L 162 26 L 170 26 L 178 28 L 182 32 L 180 38 L 175 42 L 170 44 L 165 46 L 160 48 L 155 46 L 152 42 L 152 36 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Scandinavia -->
+  <path d="M 162 18 L 168 16 L 172 20 L 170 26 L 164 27 L 160 24 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Africa -->
+  <path d="M 155 52 L 162 50 L 170 50 L 178 52 L 182 58 L 184 66 L 184 76 L 182 86 L 178 96 L 172 104 L 166 110 L 160 112 L 154 110 L 150 104 L 148 96 L 148 86 L 148 76 L 150 66 L 152 58 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Russia / Asia (simplified) -->
+  <path d="M 178 22 L 195 18 L 215 16 L 235 18 L 250 22 L 262 28 L 268 34 L 265 40 L 256 44 L 244 46 L 230 48 L 215 50 L 200 50 L 188 48 L 180 44 L 178 38 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Middle East -->
+  <path d="M 182 46 L 192 44 L 200 46 L 205 52 L 202 58 L 196 60 L 188 58 L 182 54 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- India -->
+  <path d="M 208 52 L 218 50 L 225 54 L 226 62 L 222 70 L 216 74 L 210 70 L 206 62 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Southeast Asia -->
+  <path d="M 238 50 L 250 48 L 260 50 L 268 56 L 266 62 L 258 66 L 248 65 L 240 60 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- China -->
+  <path d="M 228 34 L 245 32 L 260 34 L 268 40 L 265 48 L 252 50 L 238 50 L 228 46 L 224 40 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Japan -->
+  <path d="M 275 32 L 280 30 L 284 34 L 282 40 L 277 42 L 274 38 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- Australia -->
+  <path d="M 250 108 L 265 104 L 280 106 L 292 112 L 296 120 L 292 128 L 282 134 L 268 136 L 255 132 L 246 124 L 244 116 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+  <!-- New Zealand -->
+  <path d="M 302 126 L 308 124 L 312 128 L 310 134 L 305 136 L 302 131 Z" stroke="rgba(244,242,238,0.35)" stroke-width="0.8" fill="rgba(244,242,238,0.04)"/>
+</svg>

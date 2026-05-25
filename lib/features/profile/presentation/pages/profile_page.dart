@@ -1,29 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:singularity/app/widgets/text_field.dart';
-import 'package:singularity/core/constants/colors.dart';
-import 'package:singularity/features/auth/domain/entities/user_entity.dart';
-import 'package:singularity/features/auth/presentation/bloc/auth_bloc.dart';
+import '../../../../../app/widgets/s_round_btn.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_spacing.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../saved/presentation/bloc/saved_bloc.dart';
 import '../bloc/profile_bloc.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _bioController = TextEditingController();
-  final _ageController = TextEditingController();
-  final _occupationController = TextEditingController();
-  final _countryController = TextEditingController();
-  bool _editMode = false;
+  final _scrollController = ScrollController();
+  final _prefsKey = GlobalKey();
 
   @override
   void initState() {
@@ -36,297 +33,664 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _bioController.dispose();
-    _ageController.dispose();
-    _occupationController.dispose();
-    _countryController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void _populateControllers(UserEntity user) {
-    _nameController.text = user.name ?? '';
-    _emailController.text = user.email ?? '';
-    _bioController.text = user.bio ?? '';
-    _ageController.text = user.age ?? '';
-    _occupationController.text = user.occupation ?? '';
-    _countryController.text = user.country ?? '';
-  }
-
-  void _onSavePressed(UserEntity currentUser) {
-    if (!_formKey.currentState!.validate()) return;
-    if (_editMode) {
-      final updated = currentUser.copyWith(
-        name: _nameController.text.trim(),
-        bio: _bioController.text.trim(),
-        age: _ageController.text.trim(),
-        occupation: _occupationController.text.trim(),
-        country: _countryController.text.trim(),
+  void _scrollToPreferences() {
+    final ctx = _prefsKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOut,
       );
-      context.read<ProfileBloc>().add(UpdateProfileEvent(updated));
-    } else {
-      setState(() => _editMode = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ProfileBloc, ProfileState>(
-      listener: (context, state) {
-        if (state is ProfileLoaded || state is ProfileUpdateSuccess) {
-          final user = state is ProfileLoaded
-              ? state.user
-              : (state as ProfileUpdateSuccess).user;
-          _populateControllers(user);
-          if (state is ProfileUpdateSuccess) {
-            setState(() => _editMode = false);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Profile updated')),
-            );
-          }
-        }
-        if (state is ProfileError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
-        }
-      },
+    return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
-        final currentUser = state is ProfileLoaded
-            ? state.user
-            : state is ProfileUpdating
-                ? state.user
-                : state is ProfileUpdateSuccess
-                    ? state.user
-                    : null;
+        final user = _extractUser(state);
+        final uid = FirebaseAuth.instance.currentUser?.uid;
 
         return Scaffold(
-          backgroundColor: primaryColor,
-          appBar: AppBar(
-            title: const Text('Profile', style: TextStyle(color: Colors.white)),
-            centerTitle: true,
-            elevation: 2,
-            backgroundColor: Colors.black,
-            actions: [
-              if (currentUser != null)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8, top: 10, bottom: 10),
-                  child: MaterialButton(
-                    minWidth: 30,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    color: secondaryColor,
-                    onPressed: state is ProfileUpdating
+          backgroundColor: AppColors.ink,
+          body: SafeArea(
+            child: user == null
+                ? _ProfileFallback(
+                    state: state,
+                    onRetry: uid == null
                         ? null
-                        : () => _onSavePressed(currentUser),
-                    child: Text(_editMode ? 'Save' : 'Edit'),
+                        : () => context.read<ProfileBloc>().add(
+                            LoadProfileEvent(uid),
+                          ),
+                  )
+                : SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sp24,
+                      vertical: AppSpacing.sp24,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _Header(
+                          user: user,
+                          onSettingsTap: _scrollToPreferences,
+                          onEditTap: () => _showEditProfile(context, user),
+                        ),
+                        const SizedBox(height: AppSpacing.sp32),
+                        ProfileStatsRow(user: user),
+                        const SizedBox(height: AppSpacing.sp32),
+                        const Divider(color: AppColors.hairline),
+                        const SizedBox(height: AppSpacing.sp24),
+                        _PreferencesSection(key: _prefsKey, user: user),
+                        const SizedBox(height: AppSpacing.sp24),
+                        const Divider(color: AppColors.hairline),
+                        const SizedBox(height: AppSpacing.sp24),
+                        _AccountSection(
+                          onEditProfile: () => _showEditProfile(context, user),
+                          onPrivacy: () => context.push('/privacy'),
+                          onAbout: () => _showAbout(context),
+                        ),
+                        const SizedBox(height: 100),
+                      ],
+                    ),
                   ),
-                ),
-            ],
           ),
-          body: _buildBody(context, state, currentUser),
         );
       },
     );
   }
 
-  Widget _buildBody(
-      BuildContext context, ProfileState state, UserEntity? currentUser) {
-    if (state is ProfileLoading || state is ProfileInitial) {
-      return const Center(
-          child: CircularProgressIndicator(color: secondaryColor));
-    }
+  UserEntity? _extractUser(ProfileState state) {
+    if (state is ProfileLoaded) return state.user;
+    if (state is ProfileUpdating) return state.user;
+    if (state is ProfileUpdateSuccess) return state.user;
+    return null;
+  }
 
-    if (currentUser == null && state is ProfileError) {
-      return Center(
-        child: Text(state.message, style: const TextStyle(color: Colors.white)),
-      );
-    }
-
-    if (currentUser == null) return const SizedBox.shrink();
-
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Form(
-          key: _formKey,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 32, bottom: 18),
-                  child: CircleAvatar(
-                    backgroundColor: secondaryColor,
-                    radius: 50,
-                    child: Transform.scale(
-                      scale: 3,
-                      child: Text(
-                        (currentUser.name ?? '?')
-                            .substring(0, 1)
-                            .toUpperCase(),
-                        style: TextStyle(
-                          fontFamily: 'dity',
-                          color: primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                _editMode
-                    ? Column(
-                        children: [
-                          _formField(
-                            context: context,
-                            screenWidth: screenWidth,
-                            title: 'Name',
-                            hintText: 'Enter name',
-                            controller: _nameController,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please enter your name';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          _formField(
-                            context: context,
-                            screenWidth: screenWidth,
-                            title: 'Bio',
-                            hintText: 'Enter bio',
-                            controller: _bioController,
-                            maxLines: 3,
-                            validator: (_) => null,
-                          ),
-                          const SizedBox(height: 8),
-                          _formField(
-                            context: context,
-                            screenWidth: screenWidth,
-                            title: 'Age',
-                            hintText: 'Enter age',
-                            controller: _ageController,
-                            validator: (_) => null,
-                          ),
-                          const SizedBox(height: 8),
-                          _formField(
-                            context: context,
-                            screenWidth: screenWidth,
-                            title: 'Occupation',
-                            hintText: 'Enter occupation',
-                            controller: _occupationController,
-                            validator: (_) => null,
-                          ),
-                          const SizedBox(height: 8),
-                          _formField(
-                            context: context,
-                            screenWidth: screenWidth,
-                            title: 'Country',
-                            hintText: 'Enter country',
-                            controller: _countryController,
-                            validator: (_) => null,
-                          ),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          Text(
-                            _nameController.text,
-                            style: _textStyle().copyWith(fontSize: 24),
-                          ),
-                          Text(
-                            _emailController.text,
-                            style: _textStyle(),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _bioController.text,
-                            style: _textStyle().copyWith(fontSize: 16),
-                          ),
-                          const SizedBox(height: 16),
-                          MaterialButton(
-                            onPressed: () => setState(() => _editMode = true),
-                            color: secondaryColor,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            child: const Text('Update Bio'),
-                          ),
-                        ],
-                      ),
-                const SizedBox(height: 32),
-                if (!_editMode)
-                  TextButton.icon(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(const SignOutEvent());
-                    },
-                    icon: const Icon(Icons.logout, color: Colors.white),
-                    label: Text(
-                      'Sign Out',
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-              ],
+  void _showEditProfile(BuildContext context, UserEntity user) {
+    final nameCtrl = TextEditingController(text: user.name ?? '');
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF16161D),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (_) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          24,
+          24,
+          24,
+          MediaQuery.of(context).viewInsets.bottom + 32,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Edit profile',
+              style: GoogleFonts.newsreader(
+                fontSize: 22,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w300,
+                color: AppColors.bone,
+              ),
             ),
-          ),
+            const SizedBox(height: AppSpacing.sp20),
+            TextField(
+              controller: nameCtrl,
+              autofocus: true,
+              style: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 15,
+                color: AppColors.bone,
+              ),
+              decoration: const InputDecoration(
+                labelText: 'Display name',
+                labelStyle: TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 12,
+                  color: AppColors.bone4,
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.hairlineStrong),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.bone, width: 1.5),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sp24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.bone,
+                  foregroundColor: AppColors.ink,
+                  shape: const StadiumBorder(),
+                ),
+                onPressed: () {
+                  final name = nameCtrl.text.trim();
+                  if (name.isNotEmpty) {
+                    context.read<ProfileBloc>().add(
+                      UpdateProfileEvent(user.copyWith(name: name)),
+                    );
+                  }
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Save',
+                  style: TextStyle(fontFamily: 'Geist', fontSize: 14),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _formField({
-    required BuildContext context,
-    required double screenWidth,
-    required String title,
-    required String hintText,
-    required TextEditingController controller,
-    required String? Function(String?) validator,
-    int maxLines = 1,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  void _showAbout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF16161D),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text(
+          'Singularity',
+          style: GoogleFonts.newsreader(
+            fontSize: 22,
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w300,
+            color: AppColors.bone,
+          ),
+        ),
+        content: const Text(
+          'A window on the universe.\n\nData sourced from NASA APIs, ESA Open Notify, and the NASA Exoplanet Archive. Built with Flutter.',
+          style: TextStyle(
+            fontFamily: 'Geist',
+            fontSize: 13,
+            color: AppColors.bone3,
+            height: 1.6,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Close',
+              style: TextStyle(fontFamily: 'Geist', color: AppColors.bone3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileFallback extends StatelessWidget {
+  const _ProfileFallback({required this.state, required this.onRetry});
+
+  final ProfileState state;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (state is ProfileInitial || state is ProfileLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.bone,
+          strokeWidth: 1.5,
+        ),
+      );
+    }
+
+    final message = state is ProfileError
+        ? (state as ProfileError).message
+        : 'Profile is unavailable.';
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.sp24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.person_off_outlined,
+              color: AppColors.bone4,
+              size: 32,
+            ),
+            const SizedBox(height: AppSpacing.sp16),
+            Text(
+              'Profile unavailable',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.newsreader(
+                fontSize: 24,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w300,
+                color: AppColors.bone,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sp8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 13,
+                height: 1.5,
+                color: AppColors.bone3,
+              ),
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: AppSpacing.sp20),
+              TextButton(
+                onPressed: onRetry,
+                child: const Text(
+                  'Try again',
+                  style: TextStyle(fontFamily: 'Geist', color: AppColors.bone),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.user,
+    required this.onSettingsTap,
+    required this.onEditTap,
+  });
+  final UserEntity user;
+  final VoidCallback onSettingsTap;
+  final VoidCallback onEditTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final initial =
+        (user.name?.isNotEmpty == true ? user.name![0] : user.email?[0] ?? '?')
+            .toUpperCase();
+
+    final nameParts = (user.name ?? '').trim().split(' ');
+    final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+    return Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 16, bottom: 8),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-              color: Colors.white,
-              fontSize: 18,
+        GestureDetector(
+          onTap: onEditTap,
+          child: Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                colors: [AppColors.ink2, AppColors.ink3],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              border: Border.all(color: AppColors.hairlineStrong),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              initial,
+              style: GoogleFonts.newsreader(
+                fontSize: 28,
+                fontWeight: FontWeight.w300,
+                fontStyle: FontStyle.italic,
+                color: AppColors.bone,
+              ),
             ),
           ),
         ),
-        InputText(
-          w: screenWidth,
-          controller: controller,
-          label: title,
-          hintText: hintText,
-          enabled: true,
-          maxLines: maxLines,
-          fillColor: Colors.white,
-          textColor: Colors.white,
-          validator: validator,
-          showHint: true,
+        const SizedBox(width: AppSpacing.sp16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '$firstName ',
+                      style: GoogleFonts.newsreader(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.bone,
+                      ),
+                    ),
+                    if (lastName.isNotEmpty)
+                      TextSpan(
+                        text: lastName,
+                        style: GoogleFonts.newsreader(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w300,
+                          fontStyle: FontStyle.italic,
+                          color: AppColors.bone,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                user.email ?? '',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  color: AppColors.bone3,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SRoundBtn(
+          onPressed: onSettingsTap,
+          child: const Icon(Icons.settings, color: AppColors.bone, size: 16),
         ),
       ],
     );
   }
+}
 
-  TextStyle _textStyle() {
-    return TextStyle(
-      fontFamily: GoogleFonts.titilliumWeb().fontFamily,
-      color: Colors.white,
-      fontSize: 18,
-      fontWeight: FontWeight.w400,
+class ProfileStatsRow extends StatelessWidget {
+  const ProfileStatsRow({super.key, required this.user, this.savedCount});
+
+  final UserEntity user;
+  final int? savedCount;
+
+  @override
+  Widget build(BuildContext context) {
+    if (savedCount != null) {
+      return _buildRow(savedCount.toString());
+    }
+
+    return BlocBuilder<SavedBloc, SavedState>(
+      builder: (context, state) {
+        final count = state is SavedLoaded
+            ? state.items.length.toString()
+            : '—';
+        return _buildRow(count);
+      },
+    );
+  }
+
+  Widget _buildRow(String savedCount) {
+    final alertCount = [
+      user.preferences['issAlerts'] ?? false,
+      user.preferences['solarAlerts'] ?? false,
+      user.preferences['neoAlerts'] ?? false,
+    ].where((enabled) => enabled).length;
+    return Row(
+      children: [
+        _StatCell(value: savedCount, label: 'SAVED'),
+        _Hairline(),
+        _StatCell(value: user.wallpaperCount.toString(), label: 'WALLPAPERS'),
+        _Hairline(),
+        _StatCell(value: alertCount.toString(), label: 'ALERTS'),
+      ],
+    );
+  }
+}
+
+class _StatCell extends StatelessWidget {
+  const _StatCell({required this.value, required this.label});
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: GoogleFonts.newsreader(
+              fontSize: 32,
+              height: 1,
+              fontWeight: FontWeight.w300,
+              fontStyle: FontStyle.italic,
+              color: AppColors.bone,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 9,
+              color: AppColors.bone4,
+              letterSpacing: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Hairline extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(width: 1, height: 40, color: AppColors.hairlineStrong);
+  }
+}
+
+class _PreferencesSection extends StatefulWidget {
+  const _PreferencesSection({super.key, required this.user});
+  final UserEntity user;
+
+  @override
+  State<_PreferencesSection> createState() => _PreferencesSectionState();
+}
+
+class _PreferencesSectionState extends State<_PreferencesSection> {
+  late bool _apodDigest;
+  late bool _issAlerts;
+  late bool _solarAlerts;
+  late bool _neoAlerts;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncFrom(widget.user.preferences);
+  }
+
+  @override
+  void didUpdateWidget(_PreferencesSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.user.preferences != widget.user.preferences) {
+      _syncFrom(widget.user.preferences);
+    }
+  }
+
+  void _syncFrom(Map<String, bool> p) {
+    _apodDigest = p['apodDigest'] ?? true;
+    _issAlerts = p['issAlerts'] ?? false;
+    _solarAlerts = p['solarAlerts'] ?? false;
+    _neoAlerts = p['neoAlerts'] ?? false;
+  }
+
+  void _save(String key, bool value) {
+    final updated = widget.user.copyWith(
+      preferences: {
+        'apodDigest': _apodDigest,
+        'issAlerts': _issAlerts,
+        'solarAlerts': _solarAlerts,
+        'neoAlerts': _neoAlerts,
+        key: value,
+      },
+    );
+    context.read<ProfileBloc>().add(UpdateProfileEvent(updated));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'PREFERENCES',
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 10,
+            fontWeight: FontWeight.w400,
+            color: AppColors.bone4,
+            letterSpacing: 1.6,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sp16),
+        _PrefRow(
+          label: 'Daily APOD digest',
+          value: _apodDigest,
+          onChanged: (v) {
+            setState(() => _apodDigest = v);
+            _save('apodDigest', v);
+          },
+        ),
+        _PrefRow(
+          label: 'ISS pass alerts',
+          value: _issAlerts,
+          onChanged: (v) {
+            setState(() => _issAlerts = v);
+            _save('issAlerts', v);
+          },
+        ),
+        _PrefRow(
+          label: 'Solar flare warnings',
+          value: _solarAlerts,
+          onChanged: (v) {
+            setState(() => _solarAlerts = v);
+            _save('solarAlerts', v);
+          },
+        ),
+        _PrefRow(
+          label: 'NEO close approaches',
+          value: _neoAlerts,
+          onChanged: (v) {
+            setState(() => _neoAlerts = v);
+            _save('neoAlerts', v);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _PrefRow extends StatelessWidget {
+  const _PrefRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final void Function(bool) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sp8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'Geist',
+                fontSize: 15,
+                color: AppColors.bone2,
+              ),
+            ),
+          ),
+          Switch(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+class _AccountSection extends StatelessWidget {
+  const _AccountSection({
+    required this.onEditProfile,
+    required this.onPrivacy,
+    required this.onAbout,
+  });
+  final VoidCallback onEditProfile;
+  final VoidCallback onPrivacy;
+  final VoidCallback onAbout;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ACCOUNT',
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 10,
+            fontWeight: FontWeight.w400,
+            color: AppColors.bone4,
+            letterSpacing: 1.6,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sp16),
+        _AccountRow(label: 'Saved photos', onTap: () => context.push('/saved')),
+        _AccountRow(label: 'Edit profile', onTap: onEditProfile),
+        _AccountRow(label: 'Privacy', onTap: onPrivacy),
+        _AccountRow(label: 'About Singularity', onTap: onAbout),
+        const SizedBox(height: AppSpacing.sp8),
+        GestureDetector(
+          onTap: () => context.read<AuthBloc>().add(const SignOutEvent()),
+          child: const Text(
+            'Sign out',
+            style: TextStyle(
+              fontFamily: 'Geist',
+              fontSize: 15,
+              color: AppColors.danger,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AccountRow extends StatelessWidget {
+  const _AccountRow({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sp12),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Geist',
+                  fontSize: 15,
+                  color: AppColors.bone2,
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.bone4, size: 18),
+          ],
+        ),
+      ),
     );
   }
 }

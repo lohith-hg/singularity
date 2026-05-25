@@ -4,4 +4,5 @@ abstract class ProfileRepository {
   Future<UserEntity?> getUserProfile(String userId);
   Future<void> updateUserProfile(UserEntity user);
   Future<void> createUserProfile(UserEntity user);
+  Future<void> incrementWallpaperCount(String userId);
 }

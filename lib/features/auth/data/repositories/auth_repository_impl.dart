@@ -20,13 +20,15 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity> signInWithEmailAndPassword(
-          String email, String password) =>
-      dataSource.signInWithEmailAndPassword(email, password);
+    String email,
+    String password,
+  ) => dataSource.signInWithEmailAndPassword(email, password);
 
   @override
   Future<UserEntity> createUserWithEmailAndPassword(
-          String email, String password) =>
-      dataSource.createUserWithEmailAndPassword(email, password);
+    String email,
+    String password,
+  ) => dataSource.createUserWithEmailAndPassword(email, password);
 
   @override
   Future<UserEntity> signInWithGoogle() async {
@@ -49,6 +51,5 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> signOut() => dataSource.signOut();
 
   @override
-  Future<void> resetPassword(String email) =>
-      dataSource.resetPassword(email);
+  Future<void> resetPassword(String email) => dataSource.resetPassword(email);
 }

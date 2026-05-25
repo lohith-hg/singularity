@@ -20,9 +20,14 @@ class HistoryAlbumModel {
     final data = dataList?.isNotEmpty == true
         ? dataList!.first as Map<String, dynamic>
         : null;
-    final link = linksList?.isNotEmpty == true
-        ? linksList!.first as Map<String, dynamic>
-        : null;
+    Map<String, dynamic>? link;
+    for (final rawLink in linksList ?? const []) {
+      if (rawLink is! Map<String, dynamic>) continue;
+      if (rawLink['render'] == 'image' || rawLink['href'] != null) {
+        link = rawLink;
+        break;
+      }
+    }
 
     return HistoryAlbumModel(
       title: data?['title'] as String?,
@@ -36,7 +41,10 @@ class HistoryAlbumModel {
 
   // Returns null if the item lacks required fields — filtered out in the repository.
   NasaImageEntity? toEntity() {
-    if (title == null || description == null || imageUrl == null || dateCreated == null) {
+    if (title == null ||
+        description == null ||
+        imageUrl == null ||
+        dateCreated == null) {
       return null;
     }
     return NasaImageEntity(
