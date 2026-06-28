@@ -1,10 +1,10 @@
 abstract final class NasaApi {
-  static const String _fallbackApiKey =
-      'Ah79iXNawQ4pH4Yl9j29zLaf8fBMabbE1dB6GtvW';
-
+  // Supplied at build/run time via --dart-define-from-file=.env (gitignored)
+  // or --dart-define=NASA_API_KEY=…. Falls back to NASA's public, rate-limited
+  // DEMO_KEY so a flagless build still runs. Never hardcode a real key here.
   static const String apiKey = String.fromEnvironment(
     'NASA_API_KEY',
-    defaultValue: _fallbackApiKey,
+    defaultValue: 'DEMO_KEY',
   );
 
   static const String apodBase = 'https://api.nasa.gov/planetary/apod';
