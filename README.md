@@ -1,6 +1,6 @@
-# Singularity — Astronomy Facts
+# Singularity — A Window on the Universe
 
-A production Flutter app for exploring astronomy content: NASA's Astronomy Picture of the Day, historical NASA imagery, solar system data, and universe theory articles. The codebase was fully migrated from GetX MVC to **BLoC + Clean Architecture**, making it a practical reference for scalable Flutter application design.
+A production Flutter app for exploring space through free public APIs: NASA's Astronomy Picture of the Day, Mars and Earth imagery, near-Earth asteroids, exoplanets, space weather, live ISS position, and the NASA image library. The codebase is a **BLoC + Clean Architecture** build (migrated from GetX MVC), with a stale-while-revalidate caching layer — a practical reference for scalable Flutter application design.
 
 ---
 
@@ -8,14 +8,18 @@ A production Flutter app for exploring astronomy content: NASA's Astronomy Pictu
 
 | Layer | Technology |
 |---|---|
-| Language | Dart (SDK `>=2.19.1`) |
+| Language | Dart (SDK `>=3.10.0 <4.0.0`) |
 | Framework | Flutter |
-| State management | `flutter_bloc` 8.x / `bloc` 8.x |
+| State management | `flutter_bloc` 9.x / `bloc` 9.x |
 | Dependency injection | `get_it` |
 | Navigation | `go_router` |
+| Local cache | `hive` / `hive_flutter` (TTL + stale-while-revalidate) |
 | Backend | Firebase Auth + Cloud Firestore |
-| HTTP | `dart:io` via `Uri.https` / `http` package |
-| Auth providers | Email/password, Google Sign-In |
+| HTTP | `http` package via a shared `ApiClient` (`Uri.https`) |
+| Auth | Email/password, Google Sign-In, and guest mode |
+| Media | `youtube_player_iframe` + `webview_flutter` (inline video APODs) |
+
+Data comes from free NASA/astronomy APIs (APOD, Mars Rover, EPIC, NeoWs, Exoplanet Archive TAP, DONKI, Image Library, Open Notify ISS).
 
 ---
 
@@ -26,24 +30,25 @@ The app follows **Clean Architecture** with a **feature-first** folder structure
 ```
 lib/
   features/
-    auth/
-    cosmo_daily/
-    explore/
-    profile/
-    sky_stories/
-    vintage_space/
-    shared/             ← entities shared across features (ApodEntity)
+    auth/             cosmo_daily/      mars_rover/
+    vintage_space/    epic/             iss_tracker/
+    neo/              exoplanets/       donki/
+    profile/          saved/
+    shared/           ← entities shared across features (ApodEntity)
   core/
-    constants/
-    error/
-    router/
-    usecases/
+    constants/        ← colours, topics, NASA API URLs + key
+    network/          ← ApiClient (15s timeout, retry on 429/5xx)
+    services/         ← CacheService, CachedResource, GuestSession, OnboardingService
+    error/            ← typed exceptions (ServerException, AuthException)
+    router/           ← GoRouter config + auth guard
+    theme/            ← AppColors, AppTypography, AppSpacing, AppRadii
+    usecases/         ← UseCase<Type, Params> base + NoParams
   app/
-    modules/home/       ← app shell (bottom navigation)
-    widgets/            ← shared UI components
+    modules/home/     ← HomeView shell (4-tab bottom navigation)
+    widgets/          ← shared S-prefixed UI components
     constants/
   injection_container.dart
-  main.dart
+  main.dart           ← Firebase init → initDependencies() → runApp()
 ```
 
 ### Layer responsibilities
@@ -54,13 +59,33 @@ lib/
 - `usecases/` — single-responsibility classes; each exposes one `call()` method
 
 **Data layer** — implements the domain contracts.
-- `datasources/` — talks directly to Firebase / REST APIs; throws typed exceptions
+- `datasources/` — talk to Firebase / REST APIs; throw typed exceptions. NASA datasources return a `CachedResource<T>` (see Caching) rather than a raw `Future`
 - `models/` — extend entities with `fromJson`/`toJson`; handle null-safety for API responses
-- `repositories/` — catch datasource exceptions, convert to domain types, return results
+- `repositories/` — adapt datasource results to domain types
 
 **Presentation layer**
 - `bloc/` — receives events, calls usecases, emits states; no business logic in widgets
 - `pages/` — `BlocBuilder`/`BlocConsumer` widgets; pure UI
+
+---
+
+## Features
+
+| Feature | Surface | Data source |
+|---|---|---|
+| `cosmo_daily` | **Today** tab | NASA APOD REST API. Video APODs play **inline** (`youtube_player_iframe`, with a `webview_flutter` fallback) |
+| `mars_rover` | **Mars** tab | NASA Image & Video Library keyword search (`images-api.nasa.gov`) |
+| `vintage_space` | **Vault** tab | NASA Image Library (random topics, parallel fetch) |
+| `profile` | **Me** tab | Firestore `users/{uid}` |
+| `auth` | Auth screens | Firebase Auth + Firestore; email/password, Google, guest |
+| `epic` | `/epic` route | NASA EPIC (Earth imagery) |
+| `iss_tracker` | `/iss` route | Open Notify (live ISS position) |
+| `neo` | `/neo` route | NASA NeoWs (near-Earth objects) |
+| `exoplanets` | `/exoplanets` route | NASA Exoplanet Archive TAP |
+| `donki` | `/donki` route | NASA DONKI (space weather) |
+| `saved` | `/saved` route | Firestore `users/{uid}/saved` (bookmarked APODs) |
+
+The four bottom-nav tabs are **Today → Mars → Vault → Me**; the remaining NASA features are pushed `go_router` routes.
 
 ---
 
@@ -70,16 +95,17 @@ Each feature has its own BLoC with co-located event and state files via Dart `pa
 
 ```
 cosmo_daily_bloc.dart   ← class CosmoDailyBloc extends Bloc<…>
-cosmo_daily_event.dart  ← sealed event hierarchy
-cosmo_daily_state.dart  ← sealed state hierarchy
+cosmo_daily_event.dart  ← sealed event hierarchy   (part of bloc.dart)
+cosmo_daily_state.dart  ← sealed state hierarchy    (part of bloc.dart)
 ```
 
-States are `Equatable` subclasses, which means `BlocBuilder` only rebuilds on distinct state changes. Events are dispatched with `context.read<XBloc>().add(XEvent())`.
+States are `Equatable` subclasses, so `BlocBuilder` only rebuilds on distinct state changes. Events are dispatched with `context.read<XBloc>().add(XEvent())`.
 
 **BLoC scoping strategy:**
 
 - `AuthBloc` — provided once at the app root (above `MaterialApp.router`) so auth state is globally accessible.
-- Tab BLoCs (`CosmoDailyBloc`, `SkyStoriesBloc`, `VintageSpaceBloc`, `ExploreBloc`, `ProfileBloc`) — each wrapped in its own `BlocProvider` inside `HomeView`. They are created on first tab visit and disposed when the shell is destroyed.
+- Tab BLoCs (`CosmoDailyBloc`, `MarsRoverBloc`, `VintageSpaceBloc`, `ProfileBloc`) — each wrapped in its own `BlocProvider` inside `HomeView`, scoped to the page. `SavedBloc` is provided at the `HomeView` root (shared by Profile's stats and the `/saved` page).
+- Routed feature BLoCs (`NeoBloc`, `DonkiBloc`, `ExoplanetsBloc`, `EpicBloc`, `IssTrackerBloc`) — created in their `GoRoute` builder.
 
 ---
 
@@ -89,36 +115,58 @@ All registrations live in `injection_container.dart`. The `sl` global locator is
 
 ```dart
 // datasource → repository → usecase → bloc, always in this order
-sl.registerLazySingleton<ApodRemoteDataSource>(() => ApodRemoteDataSourceImpl());
+sl.registerLazySingleton<ApodRemoteDataSource>(
+  () => ApodRemoteDataSourceImpl(cacheService: sl()));
 sl.registerLazySingleton<ApodRepository>(() => ApodRepositoryImpl(sl()));
 sl.registerLazySingleton(() => GetApodPictures(sl()));
 sl.registerFactory(() => CosmoDailyBloc(getApodPictures: sl()));
 ```
 
-- **`registerLazySingleton`** — datasources, repositories, usecases. Created once, reused.
-- **`registerFactory`** — BLoCs. A fresh instance is created each time the tab is mounted, ensuring clean state on re-entry.
+- **`registerLazySingleton`** — datasources, repositories, usecases, and shared services (`CacheService`, `GuestSession`). Created once, reused.
+- **`registerFactory`** — BLoCs. A fresh instance each time, ensuring clean state on re-entry.
 
-`sky_stories` deliberately reuses the `ApodRemoteDataSource` singleton already registered by `cosmo_daily` — they hit the same NASA API endpoint and share the `ApodEntity`.
+`CacheService` is injected into each NASA datasource so responses are cached and revalidated transparently.
+
+---
+
+## Caching — Stale-While-Revalidate
+
+`CacheService` (`core/services/cache_service.dart`) is a Hive-backed cache initialised before `runApp`. Beyond plain `read(key, ttl)` (returns a `CacheRead` with the cached JSON + an `isStale` flag) it exposes SWR helpers — `swr<T>(...)` and `swrComposed<T>(...)` — that return a `CachedResource<T>`.
+
+```
+NASA datasource ──► CachedResource<T> { cached, isStale, refresh() }
+        │
+BLoC:  emit cached value instantly (if present)
+        └── if stale → await refresh() → emit fresh value
+```
+
+The loading spinner therefore appears only on first launch; subsequent visits render cached data immediately and update in the background. Per-feature TTLs range from 12 hours to 7 days. `invalidatePrefix('feature_')` purges a feature's cache.
 
 ---
 
 ## Navigation — GoRouter with Auth Guard
 
-`lib/core/router/app_router.dart` defines two top-level routes: `/auth` and `/home`.
+`lib/core/router/app_router.dart` defines the auth screens (`/splash`, `/onboarding`, `/login`, `/signup`, `/forgot`), the tab shell (`/home`), and the secondary routes (`/mars`, `/epic`, `/iss`, `/neo`, `/exoplanets`, `/donki`, `/library`, `/search`, `/saved`, `/apod-detail`, `/privacy`).
 
-Authentication-driven redirection is handled by `_AuthRefreshStream`, a `ChangeNotifier` that wraps `FirebaseAuth.instance.authStateChanges()`:
+The guard is GoRouter's `redirect` plus a `refreshListenable` that **merges two `ChangeNotifier`s** — `_AuthRefreshStream` (wraps `FirebaseAuth.instance.authStateChanges()`) and `GuestSession` (a "browse without an account" flag):
 
 ```dart
-refreshListenable: _AuthRefreshStream(FirebaseAuth.instance.authStateChanges()),
+refreshListenable: Listenable.merge([
+  _AuthRefreshStream(FirebaseAuth.instance.authStateChanges()),
+  sl<GuestSession>(),
+]),
 redirect: (context, state) {
   final isLoggedIn = FirebaseAuth.instance.currentUser != null;
-  if (!isLoggedIn && state.matchedLocation != '/auth') return '/auth';
-  if (isLoggedIn  && state.matchedLocation == '/auth') return '/home';
+  final isGuest = sl<GuestSession>().isActive;
+  final loc = state.matchedLocation;
+  if (loc == '/splash' || loc == '/onboarding') return null;
+  if (!isLoggedIn && !isGuest && loc == '/home') return '/login';
+  if (isLoggedIn && (loc == '/login' || loc == '/signup')) return '/home';
   return null;
 },
 ```
 
-Whenever Firebase fires an auth event (sign-in or sign-out), `notifyListeners()` is called, GoRouter re-evaluates the redirect, and navigation happens without any imperative `Navigator.push` or `context.go()` calls in the BLoC or widget layer.
+Whenever Firebase fires an auth event or guest mode toggles, `notifyListeners()` runs, GoRouter re-evaluates the redirect, and navigation happens without any imperative `Navigator.push`/`context.go()` in the BLoC or widget layer.
 
 ---
 
@@ -130,12 +178,13 @@ Taking `CosmoDailyPage` loading pictures as an example:
 CosmoDailyPage.initState()
   └── context.read<CosmoDailyBloc>().add(LoadCosmoDailyEvent())
         └── CosmoDailyBloc._onLoad()
-              └── GetApodPictures.call(ApodParams(...))         ← usecase
-                    └── ApodRepositoryImpl.getApodPictures()   ← repository
-                          └── ApodRemoteDataSourceImpl.fetch() ← datasource
-                                └── http GET nasa.gov/apod
-              emit(CosmoDailyLoaded(pictures))
-        └── BlocBuilder rebuilds → PageView of pictures
+              └── GetApodPictures.call(...)               ← usecase
+                    └── ApodRepositoryImpl.getApodPictures()  ← repository
+                          └── ApodRemoteDataSourceImpl       ← datasource
+                                └── CacheService.swr(...) → CachedResource
+              emit(CosmoDailyLoaded(cached))               ← instant, if cached
+              if stale: emit(CosmoDailyLoaded(fresh))      ← after refresh
+        └── BlocBuilder rebuilds
 ```
 
 Errors propagate upward as typed exceptions (`ServerException`) caught at the BLoC level, which emits an error state rendered as a message in the UI.
@@ -152,9 +201,9 @@ _authSub = getAuthState(NoParams()).listen(
 );
 ```
 
-This means the BLoC is always in sync with Firebase, even if a session expires or is revoked externally. Sign-in and sign-up usecases only call the Firebase API — they do not emit `AuthAuthenticated` directly. The stream fires, `AuthStateChangedEvent` is added, and the BLoC emits the correct state. GoRouter's `_AuthRefreshStream` then picks up the Firebase event and redirects.
+The BLoC is always in sync with Firebase, even if a session expires or is revoked externally. Sign-in/sign-up usecases only call the Firebase API — they do not emit `AuthAuthenticated` directly. The stream fires, `AuthStateChangedEvent` is added, the BLoC emits the correct state, and GoRouter's guard redirects.
 
-Sign-out dispatches `SignOutEvent` → `SignOutUseCase` → `FirebaseAuth.signOut()` → stream fires → `AuthUnauthenticated` → GoRouter redirects to `/auth`.
+Sign-out dispatches `SignOutEvent` → `FirebaseAuth.signOut()` → stream fires → `AuthUnauthenticated` → GoRouter redirects to `/login`. Guest users browse via `GuestSession` without a Firebase account.
 
 ---
 
@@ -177,23 +226,23 @@ BLoCs map exceptions to error states:
 }
 ```
 
-The `field` on `AuthError` lets the UI attach inline validation errors to the specific form field (email vs password) rather than showing a generic snackbar.
+The `field` on `AuthError` lets the UI attach inline validation errors to the specific form field (email vs password) rather than a generic snackbar.
 
 ---
 
 ## Key Design Decisions
 
 **Why Clean Architecture?**
-The domain layer has zero framework dependencies. Usecases and entities can be unit-tested without Firebase, HTTP, or Flutter. Swapping the data source (e.g., replacing REST with GraphQL, or Firebase with Supabase) only touches `data/` — the BLoC and UI are unaffected.
+The domain layer has zero framework dependencies. Usecases and entities can be unit-tested without Firebase, HTTP, or Flutter. Swapping a data source only touches `data/` — the BLoC and UI are unaffected.
 
 **Why BLoC over Provider/Riverpod?**
-BLoC enforces a strict unidirectional data flow: events in, states out. The explicit event/state split makes it easy to audit exactly what triggers a UI change and to reproduce bugs deterministically. It also makes the presentation layer easy to test by simply pumping events and asserting emitted states.
+BLoC enforces strict unidirectional data flow: events in, states out. The explicit event/state split makes it easy to audit what triggers a UI change and to reproduce bugs deterministically, and makes the presentation layer easy to test by pumping events and asserting emitted states.
 
 **Why GetIt over BlocProvider-based injection?**
-`BlocProvider` is used for _scoping_ BLoCs to the widget tree. GetIt is used for _construction_ — it holds the graph of datasources, repositories, and usecases that BLoCs depend on. Separating these concerns means the DI graph can be fully constructed before `runApp()` and tested independently.
+`BlocProvider` _scopes_ BLoCs to the widget tree; GetIt _constructs_ the graph of datasources, repositories, and usecases they depend on. Separating these means the DI graph can be built before `runApp()` and tested independently.
 
-**Shared `ApodEntity`**
-`CosmoDaily` (APOD pictures) and `SkyStories` (APOD-based stories) both consume the same NASA endpoint. Rather than duplicating the model, `ApodEntity` lives in `lib/features/shared/entities/` and both features reference it. The datasource (`ApodRemoteDataSource`) is registered once and injected into both repositories.
+**Why stale-while-revalidate?**
+Space data changes slowly (often daily). Returning cached data instantly and refreshing in the background keeps the UI responsive offline and on slow connections, while still converging on fresh data — without per-screen loading spinners after the first visit.
 
 ---
 
@@ -202,6 +251,15 @@ BLoC enforces a strict unidirectional data flow: events in, states out. The expl
 ```bash
 flutter pub get
 flutter run
+
+# optional: supply your own NASA API key (otherwise a bundled DEMO_KEY is used)
+flutter run --dart-define=NASA_API_KEY=<your_key>
 ```
 
-Firebase is pre-configured via `lib/firebase_options.dart` (generated by FlutterFire CLI). Google Sign-In requires a valid `google-services.json` (Android) or `GoogleService-Info.plist` (iOS) in the platform directories.
+Firebase is pre-configured via `lib/firebase_options.dart` (generated by the FlutterFire CLI). Google Sign-In requires a valid `google-services.json` (Android) or `GoogleService-Info.plist` (iOS) in the platform directories.
+
+```bash
+flutter analyze     # lint (flutter_lints)
+flutter test        # run tests
+flutter build apk   # Android release build
+```
