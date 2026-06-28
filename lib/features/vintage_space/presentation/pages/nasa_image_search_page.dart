@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/nasa_image_entity.dart';
 import '../bloc/vintage_space_bloc.dart';
+import 'vintage_image_detail_page.dart';
 
 class NasaImageSearchPage extends StatefulWidget {
   const NasaImageSearchPage({super.key});
@@ -173,8 +174,17 @@ class _NasaImageSearchPageState extends State<NasaImageSearchPage> {
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) =>
-                            NasaImageCard(image: state.images[index]),
+                        (context, index) => NasaImageCard(
+                          image: state.images[index],
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => VintageImageDetailPage(
+                                images: state.images,
+                                initialIndex: index,
+                              ),
+                            ),
+                          ),
+                        ),
                         childCount: state.images.length,
                       ),
                     ),
@@ -192,83 +202,90 @@ class _NasaImageSearchPageState extends State<NasaImageSearchPage> {
 }
 
 class NasaImageCard extends StatelessWidget {
-  const NasaImageCard({super.key, required this.image});
+  const NasaImageCard({super.key, required this.image, this.onTap});
 
   final NasaImageEntity image;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sp16),
-      decoration: BoxDecoration(
-        color: AppColors.ink1,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.hairline),
-      ),
-      clipBehavior: Clip.hardEdge,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CachedNetworkImage(
-            imageUrl: image.imageUrl,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-            placeholder: (_, _) =>
-                Container(height: 200, color: AppColors.ink2),
-            errorWidget: (_, _, _) => Container(
-              height: 120,
-              color: AppColors.ink2,
-              child: const Center(
-                child: Icon(
-                  Icons.image_outlined,
-                  color: AppColors.bone4,
-                  size: 24,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.sp16),
+        decoration: BoxDecoration(
+          color: AppColors.ink1,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.hairline),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Hero(
+              tag: 'archive-${image.imageUrl}',
+              child: CachedNetworkImage(
+                imageUrl: image.imageUrl,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                placeholder: (_, _) =>
+                    Container(height: 200, color: AppColors.ink2),
+                errorWidget: (_, _, _) => Container(
+                  height: 120,
+                  color: AppColors.ink2,
+                  child: const Center(
+                    child: Icon(
+                      Icons.image_outlined,
+                      color: AppColors.bone4,
+                      size: 24,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.sp16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${image.dateCreated.day}.${image.dateCreated.month.toString().padLeft(2, '0')}.${image.dateCreated.year}',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 10,
-                    color: AppColors.bone4,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sp4),
-                Text(
-                  image.title,
-                  style: GoogleFonts.newsreader(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.bone,
-                    height: 1.3,
-                  ),
-                ),
-                if (image.description.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.sp8),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.sp16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    image.description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: 'Geist',
-                      fontSize: 13,
-                      color: AppColors.bone3,
-                      height: 1.5,
+                    '${image.dateCreated.day}.${image.dateCreated.month.toString().padLeft(2, '0')}.${image.dateCreated.year}',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 10,
+                      color: AppColors.bone4,
+                      letterSpacing: 0.8,
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.sp4),
+                  Text(
+                    image.title,
+                    style: GoogleFonts.newsreader(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.bone,
+                      height: 1.3,
+                    ),
+                  ),
+                  if (image.description.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.sp8),
+                    Text(
+                      image.description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: 'Geist',
+                        fontSize: 13,
+                        color: AppColors.bone3,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

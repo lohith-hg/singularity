@@ -3,25 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../core/theme/app_colors.dart';
-import '../../domain/entities/rover_photo_entity.dart';
+import '../../domain/entities/nasa_image_entity.dart';
 
-class MarsPhotoDetailPage extends StatefulWidget {
-  const MarsPhotoDetailPage({
+/// Full-screen detail view for Archive (NASA Image Library) images. Mirrors the
+/// Mars photo detail screen: a swipeable, zoomable image viewer over an info
+/// panel with the full description in the same larger body text.
+class VintageImageDetailPage extends StatefulWidget {
+  const VintageImageDetailPage({
     super.key,
-    required this.photos,
+    required this.images,
     required this.initialIndex,
-    required this.heroTag,
   });
 
-  final List<RoverPhotoEntity> photos;
+  final List<NasaImageEntity> images;
   final int initialIndex;
-  final String heroTag;
 
   @override
-  State<MarsPhotoDetailPage> createState() => _MarsPhotoDetailPageState();
+  State<VintageImageDetailPage> createState() => _VintageImageDetailPageState();
 }
 
-class _MarsPhotoDetailPageState extends State<MarsPhotoDetailPage> {
+class _VintageImageDetailPageState extends State<VintageImageDetailPage> {
   late final PageController _pageController;
   late int _currentIndex;
 
@@ -46,31 +47,31 @@ class _MarsPhotoDetailPageState extends State<MarsPhotoDetailPage> {
         child: Column(
           children: [
             _buildTopBar(),
-            // Image viewer — clipped so zoom doesn't bleed into info panel
+            // Image viewer — clipped so zoom doesn't bleed into the info panel.
             Expanded(
               flex: 55,
               child: ClipRect(
                 child: PageView.builder(
                   controller: _pageController,
-                  itemCount: widget.photos.length,
+                  itemCount: widget.images.length,
                   onPageChanged: (i) => setState(() => _currentIndex = i),
-                  itemBuilder: (_, index) => _PhotoViewItem(
-                    photo: widget.photos[index],
+                  itemBuilder: (_, index) => _ImageViewItem(
+                    image: widget.images[index],
                     heroTag: index == widget.initialIndex
-                        ? widget.heroTag
+                        ? 'archive-${widget.images[index].imageUrl}'
                         : null,
                   ),
                 ),
               ),
             ),
-            // Info panel — always visible, fades between photos
+            // Info panel — always visible, fades between images.
             Expanded(
               flex: 45,
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
                 child: _InfoPanel(
-                  key: ValueKey(widget.photos[_currentIndex].id),
-                  photo: widget.photos[_currentIndex],
+                  key: ValueKey(widget.images[_currentIndex].imageUrl),
+                  image: widget.images[_currentIndex],
                 ),
               ),
             ),
@@ -91,20 +92,14 @@ class _MarsPhotoDetailPageState extends State<MarsPhotoDetailPage> {
             child: const Icon(Icons.close, color: AppColors.bone, size: 18),
           ),
           Text(
-            '${_currentIndex + 1} / ${widget.photos.length}',
+            '${_currentIndex + 1} / ${widget.images.length}',
             style: GoogleFonts.jetBrainsMono(
               fontSize: 11,
               color: AppColors.bone3,
             ),
           ),
-          _CircleButton(
-            onTap: () {},
-            child: const Icon(
-              Icons.ios_share_outlined,
-              color: AppColors.bone,
-              size: 16,
-            ),
-          ),
+          // Balances the close button so the counter stays centred.
+          const SizedBox(width: 36),
         ],
       ),
     );
@@ -112,31 +107,26 @@ class _MarsPhotoDetailPageState extends State<MarsPhotoDetailPage> {
 }
 
 class _InfoPanel extends StatelessWidget {
-  const _InfoPanel({super.key, required this.photo});
+  const _InfoPanel({super.key, required this.image});
 
-  final RoverPhotoEntity photo;
+  final NasaImageEntity image;
 
-  String _formatDate(String raw) {
-    try {
-      final dt = DateTime.parse(raw);
-      const months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-      return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
-    } catch (_) {
-      return raw;
-    }
+  String _formatDate(DateTime dt) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
   }
 
   @override
@@ -152,19 +142,18 @@ class _InfoPanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (photo.date.isNotEmpty)
-              Text(
-                _formatDate(photo.date).toUpperCase(),
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 9,
-                  color: AppColors.bone3,
-                  letterSpacing: 1.4,
-                ),
+            Text(
+              _formatDate(image.dateCreated).toUpperCase(),
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 9,
+                color: AppColors.bone3,
+                letterSpacing: 1.4,
               ),
-            if (photo.title.isNotEmpty) ...[
+            ),
+            if (image.title.isNotEmpty) ...[
               const SizedBox(height: 6),
               Text(
-                photo.title,
+                image.title,
                 style: GoogleFonts.newsreader(
                   fontSize: 20,
                   fontWeight: FontWeight.w400,
@@ -173,12 +162,12 @@ class _InfoPanel extends StatelessWidget {
                 ),
               ),
             ],
-            if (photo.description.isNotEmpty) ...[
+            if (image.description.isNotEmpty) ...[
               const SizedBox(height: 14),
               const Divider(color: Color(0xFF252530), height: 1),
               const SizedBox(height: 14),
               Text(
-                photo.description,
+                image.description,
                 style: const TextStyle(
                   fontFamily: 'Geist',
                   fontSize: 15,
@@ -188,13 +177,6 @@ class _InfoPanel extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 16),
-            Text(
-              'NASA ID: ${photo.id}',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 9,
-                color: AppColors.bone3.withValues(alpha: 0.35),
-              ),
-            ),
           ],
         ),
       ),
@@ -202,17 +184,17 @@ class _InfoPanel extends StatelessWidget {
   }
 }
 
-class _PhotoViewItem extends StatefulWidget {
-  const _PhotoViewItem({required this.photo, this.heroTag});
+class _ImageViewItem extends StatefulWidget {
+  const _ImageViewItem({required this.image, this.heroTag});
 
-  final RoverPhotoEntity photo;
+  final NasaImageEntity image;
   final String? heroTag;
 
   @override
-  State<_PhotoViewItem> createState() => _PhotoViewItemState();
+  State<_ImageViewItem> createState() => _ImageViewItemState();
 }
 
-class _PhotoViewItemState extends State<_PhotoViewItem> {
+class _ImageViewItemState extends State<_ImageViewItem> {
   final _transformController = TransformationController();
 
   void _onDoubleTapDown(TapDownDetails details) {
@@ -236,7 +218,7 @@ class _PhotoViewItemState extends State<_PhotoViewItem> {
   @override
   Widget build(BuildContext context) {
     Widget image = CachedNetworkImage(
-      imageUrl: widget.photo.originalUrl,
+      imageUrl: widget.image.imageUrl,
       fit: BoxFit.contain,
       placeholder: (_, _) => const Center(
         child: CircularProgressIndicator(
@@ -244,12 +226,8 @@ class _PhotoViewItemState extends State<_PhotoViewItem> {
           strokeWidth: 1.5,
         ),
       ),
-      errorWidget: (_, _, _) => CachedNetworkImage(
-        imageUrl: widget.photo.thumbnailUrl,
-        fit: BoxFit.contain,
-        errorWidget: (_, _, _) =>
-            const Icon(Icons.broken_image, color: AppColors.bone3, size: 48),
-      ),
+      errorWidget: (_, _, _) =>
+          const Icon(Icons.broken_image, color: AppColors.bone3, size: 48),
     );
 
     if (widget.heroTag != null) {

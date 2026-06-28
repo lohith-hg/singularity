@@ -343,20 +343,6 @@ class _ApodPage extends StatelessWidget {
               color: AppColors.bone,
             ),
           ),
-          const SizedBox(height: AppSpacing.sp20),
-
-          Row(
-            children: [
-              if (apod.copyright.isNotEmpty) ...[
-                _MetaCell(label: 'CREDIT', value: apod.copyright),
-                _VerticalDivider(),
-              ],
-              _MetaCell(
-                label: 'TYPE',
-                value: apod.mediaType == 'image' ? 'Image' : 'Video',
-              ),
-            ],
-          ),
           const SizedBox(height: AppSpacing.sp24),
 
           const Divider(color: AppColors.hairline),
@@ -369,6 +355,31 @@ class _ApodPage extends StatelessWidget {
               fontSize: 15,
               height: 1.55,
               color: AppColors.bone2,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sp24),
+
+          const Divider(color: AppColors.hairline),
+          const SizedBox(height: AppSpacing.sp20),
+
+          // Credit / type meta — below the description. The CREDIT cell is
+          // flexible so long attributions wrap instead of overflowing on narrow
+          // screens; IntrinsicHeight keeps the divider matched to its height.
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (apod.copyright.isNotEmpty) ...[
+                  Flexible(
+                    child: _MetaCell(label: 'CREDIT', value: apod.copyright),
+                  ),
+                  _VerticalDivider(),
+                ],
+                _MetaCell(
+                  label: 'TYPE',
+                  value: apod.mediaType == 'image' ? 'Image' : 'Video',
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 100),

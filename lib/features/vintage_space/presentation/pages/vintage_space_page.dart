@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../bloc/vintage_space_bloc.dart';
 import 'nasa_image_search_page.dart';
+import 'vintage_image_detail_page.dart';
 
 class VintageSpacePage extends StatefulWidget {
   const VintageSpacePage({super.key, this.embedded = false});
@@ -137,7 +138,17 @@ class _VintageSpacePageState extends State<VintageSpacePage> {
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
                           final image = state.images[index];
-                          return NasaImageCard(image: image);
+                          return NasaImageCard(
+                            image: image,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => VintageImageDetailPage(
+                                  images: state.images,
+                                  initialIndex: index,
+                                ),
+                              ),
+                            ),
+                          );
                         }, childCount: state.images.length),
                       ),
                     ),
