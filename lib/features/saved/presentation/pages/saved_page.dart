@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -21,11 +21,9 @@ class _SavedPageState extends State<SavedPage> {
   @override
   void initState() {
     super.initState();
-    // SavedBloc is loaded at HomeView level; trigger a refresh if still initial
     final state = context.read<SavedBloc>().state;
     if (state is SavedInitial) {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid != null) context.read<SavedBloc>().add(LoadSavedItemsEvent(uid));
+      context.read<SavedBloc>().add(const LoadSavedItemsEvent());
     }
   }
 
@@ -97,14 +95,7 @@ class _SavedPageState extends State<SavedPage> {
                   ),
                 ),
                 if (state is SavedLoading || state is SavedInitial)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.bone,
-                        strokeWidth: 1.5,
-                      ),
-                    ),
-                  )
+                  const SliverToBoxAdapter(child: _SavedShimmer())
                 else if (state is SavedError)
                   SliverFillRemaining(
                     child: Center(
@@ -171,10 +162,15 @@ class _SavedPageState extends State<SavedPage> {
                           ),
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final item = state.items[index];
+                        final allApods = state.items
+                            .map((e) => e.apod)
+                            .toList();
                         return _SavedCard(
                           apod: item.apod,
-                          onTap: () =>
-                              context.push('/apod-detail', extra: item.apod),
+                          onTap: () => context.push(
+                            '/apod-detail',
+                            extra: {'apods': allApods, 'index': index},
+                          ),
                         );
                       }, childCount: state.items.length),
                     ),
@@ -184,6 +180,41 @@ class _SavedPageState extends State<SavedPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class _SavedShimmer extends StatelessWidget {
+  const _SavedShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.ink2,
+      highlightColor: AppColors.ink3,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.sp16,
+          0,
+          AppSpacing.sp16,
+          100,
+        ),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: AppSpacing.sp8,
+            mainAxisSpacing: AppSpacing.sp8,
+            childAspectRatio: 0.8,
+          ),
+          itemCount: 6,
+          itemBuilder: (_, _) => ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Container(color: AppColors.ink2),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -202,16 +233,19 @@ class _SavedCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            CachedNetworkImage(
-              imageUrl: apod.url,
-              fit: BoxFit.cover,
-              placeholder: (_, _) => Container(color: AppColors.ink2),
-              errorWidget: (_, _, _) => Container(
-                color: AppColors.ink2,
-                child: const Icon(
-                  Icons.image_outlined,
-                  color: AppColors.bone4,
-                  size: 24,
+            Hero(
+              tag: 'apod-${apod.date.toIso8601String()}',
+              child: CachedNetworkImage(
+                imageUrl: apod.url,
+                fit: BoxFit.cover,
+                placeholder: (_, _) => Container(color: AppColors.ink2),
+                errorWidget: (_, _, _) => Container(
+                  color: AppColors.ink2,
+                  child: const Icon(
+                    Icons.image_outlined,
+                    color: AppColors.bone4,
+                    size: 24,
+                  ),
                 ),
               ),
             ),

@@ -1,4 +1,16 @@
+import 'dart:convert';
+
 import '../../domain/entities/space_weather_event_entity.dart';
+
+List<SpaceWeatherEventModel> spaceWeatherEventListFromCached(String str) =>
+    (jsonDecode(str) as List)
+        .map(
+          (x) => SpaceWeatherEventModel.fromCached(x as Map<String, dynamic>),
+        )
+        .toList();
+
+String spaceWeatherEventListToJson(List<SpaceWeatherEventModel> events) =>
+    jsonEncode(events.map((e) => e.toJson()).toList());
 
 class SpaceWeatherEventModel {
   final String type;
@@ -60,7 +72,9 @@ class SpaceWeatherEventModel {
   factory SpaceWeatherEventModel.fromSep(Map<String, dynamic> json) {
     final instruments = json['instruments'] as List? ?? [];
     final names = instruments
-        .map((i) => (i as Map<String, dynamic>)['displayName'] as String? ?? '')
+        .map(
+          (i) => (i as Map<String, dynamic>)['displayName'] as String? ?? '',
+        )
         .join(', ');
     return SpaceWeatherEventModel(
       type: 'SEP',
@@ -70,11 +84,29 @@ class SpaceWeatherEventModel {
     );
   }
 
+  /// Deserialise from the flat cached format written by [toJson].
+  factory SpaceWeatherEventModel.fromCached(Map<String, dynamic> json) =>
+      SpaceWeatherEventModel(
+        type: json['type'] as String,
+        id: json['id'] as String,
+        time: json['time'] as String,
+        description: json['description'] as String,
+        kpIndex: (json['kpIndex'] as num?)?.toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'type': type,
+        'id': id,
+        'time': time,
+        'description': description,
+        'kpIndex': kpIndex,
+      };
+
   SpaceWeatherEventEntity toEntity() => SpaceWeatherEventEntity(
-    type: type,
-    id: id,
-    time: time,
-    description: description,
-    kpIndex: kpIndex,
-  );
+        type: type,
+        id: id,
+        time: time,
+        description: description,
+        kpIndex: kpIndex,
+      );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/widgets/s_chip.dart';
 import '../../../../../app/widgets/s_round_btn.dart';
@@ -51,14 +52,7 @@ class _ExoplanetsPageState extends State<ExoplanetsPage> {
                 SliverToBoxAdapter(child: _buildHeader(state)),
                 SliverToBoxAdapter(child: _buildFilterRow()),
                 if (state is ExoplanetsLoading || state is ExoplanetsInitial)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.bone,
-                        strokeWidth: 1.5,
-                      ),
-                    ),
-                  )
+                  const SliverToBoxAdapter(child: _ExoplanetsShimmer())
                 else if (state is ExoplanetsError)
                   SliverFillRemaining(
                     child: Center(
@@ -176,6 +170,64 @@ class _ExoplanetsPageState extends State<ExoplanetsPage> {
       ),
     );
   }
+}
+
+class _ExoplanetsShimmer extends StatelessWidget {
+  const _ExoplanetsShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.ink2,
+      highlightColor: AppColors.ink3,
+      child: Column(children: List.generate(12, (i) => _planetRow(i))),
+    );
+  }
+
+  Widget _planetRow(int i) => Column(
+    children: [
+      if (i != 0) Container(height: 1, color: AppColors.ink2),
+      Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sp20,
+          vertical: AppSpacing.sp12,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.ink2,
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sp12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _box(160, 13),
+                  const SizedBox(height: 6),
+                  _box(100, 10),
+                ],
+              ),
+            ),
+            _box(16, 16),
+          ],
+        ),
+      ),
+    ],
+  );
+
+  Widget _box(double width, double height) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: AppColors.ink2,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
 }
 
 class _PlanetItem extends StatelessWidget {

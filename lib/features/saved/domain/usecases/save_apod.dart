@@ -5,5 +5,5 @@ class SaveApod {
   final SavedRepository _repo;
   SaveApod(this._repo);
 
-  Future<void> call(String uid, ApodEntity apod) => _repo.saveApod(uid, apod);
+  Future<void> call(ApodEntity apod) => _repo.saveApod(apod);
 }

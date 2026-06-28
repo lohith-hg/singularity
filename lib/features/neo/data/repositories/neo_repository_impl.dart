@@ -1,3 +1,4 @@
+import '../../../../core/services/cached_resource.dart';
 import '../../domain/entities/neo_entity.dart';
 import '../../domain/repositories/neo_repository.dart';
 import '../datasources/neo_remote_datasource.dart';
@@ -7,14 +8,11 @@ class NeoRepositoryImpl implements NeoRepository {
   NeoRepositoryImpl(this.dataSource);
 
   @override
-  Future<List<NeoEntity>> getNeos({
+  CachedResource<List<NeoEntity>> getNeos({
     required String startDate,
     required String endDate,
-  }) async {
-    final models = await dataSource.getNeos(
-      startDate: startDate,
-      endDate: endDate,
-    );
-    return models.map((m) => m.toEntity()).toList();
-  }
+  }) =>
+      dataSource
+          .getNeos(startDate: startDate, endDate: endDate)
+          .map((models) => models.map((m) => m.toEntity()).toList());
 }

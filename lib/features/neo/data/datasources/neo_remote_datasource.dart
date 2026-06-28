@@ -1,26 +1,33 @@
 import '../../../../core/constants/nasa_api.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/cache_service.dart';
+import '../../../../core/services/cached_resource.dart';
 import '../models/neo_model.dart';
 
 abstract class NeoRemoteDataSource {
-  Future<List<NeoModel>> getNeos({
+  CachedResource<List<NeoModel>> getNeos({
     required String startDate,
     required String endDate,
   });
 }
 
 class NeoRemoteDataSourceImpl implements NeoRemoteDataSource {
-  const NeoRemoteDataSourceImpl({ApiClient apiClient = const ApiClient()})
-    : _apiClient = apiClient;
+  NeoRemoteDataSourceImpl({
+    CacheService? cacheService,
+    ApiClient apiClient = const ApiClient(),
+  })  : _cache = cacheService,
+        _apiClient = apiClient;
 
+  final CacheService? _cache;
   final ApiClient _apiClient;
 
+  static const _ttl = Duration(hours: 12);
+
   @override
-  Future<List<NeoModel>> getNeos({
+  CachedResource<List<NeoModel>> getNeos({
     required String startDate,
     required String endDate,
-  }) async {
+  }) {
     final safeRange = _safeRange(startDate, endDate);
     final uri = Uri.https('api.nasa.gov', '/neo/rest/v1/feed', {
       'start_date': safeRange.$1,
@@ -28,14 +35,25 @@ class NeoRemoteDataSourceImpl implements NeoRemoteDataSource {
       'api_key': NasaApi.apiKey,
     });
 
-    final response = await _apiClient.get(uri, label: 'NASA NeoWs');
-    try {
-      return neoListFromJson(response.body);
-    } catch (_) {
-      throw const ServerException(
-        'NASA NeoWs returned data this app could not read.',
+    Future<String> fetchBody() async =>
+        (await _apiClient.get(uri, label: 'NASA NeoWs')).body;
+
+    final cache = _cache;
+    if (cache == null) {
+      return CachedResource(
+        cached: null,
+        isStale: true,
+        refresh: () async => neoListFromJson(await fetchBody()),
       );
     }
+
+    // Key includes the week's start date so different weeks don't share cache.
+    return cache.swr(
+      key: 'neo_${safeRange.$1}',
+      ttl: _ttl,
+      fetchBody: fetchBody,
+      parse: neoListFromJson,
+    );
   }
 
   (String, String) _safeRange(String startDate, String endDate) {

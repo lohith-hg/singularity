@@ -4,6 +4,5 @@ class UnsaveApod {
   final SavedRepository _repo;
   UnsaveApod(this._repo);
 
-  Future<void> call(String uid, String apodDate) =>
-      _repo.unsaveApod(uid, apodDate);
+  Future<void> call(String apodDate) => _repo.unsaveApod(apodDate);
 }

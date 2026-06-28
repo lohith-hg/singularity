@@ -1,18 +1,17 @@
 import 'package:get_it/get_it.dart';
 
 import 'core/services/cache_service.dart';
+import 'core/services/guest_session.dart';
 import 'core/services/onboarding_service.dart';
+import 'features/cosmo_daily/data/datasources/apod_local_datasource.dart';
 import 'features/cosmo_daily/data/datasources/apod_remote_datasource.dart';
 import 'features/cosmo_daily/data/repositories/apod_repository_impl.dart';
 import 'features/cosmo_daily/domain/repositories/apod_repository.dart';
+import 'features/cosmo_daily/domain/usecases/fetch_apod_range.dart';
 import 'features/cosmo_daily/domain/usecases/get_apod_pictures.dart';
 import 'features/cosmo_daily/presentation/bloc/cosmo_daily_bloc.dart';
-import 'features/explore/data/datasources/explore_local_datasource.dart';
-import 'features/explore/data/repositories/explore_repository_impl.dart';
-import 'features/explore/domain/repositories/explore_repository.dart';
-import 'features/explore/domain/usecases/get_articles.dart';
-import 'features/explore/domain/usecases/get_planets.dart';
-import 'features/explore/presentation/bloc/explore_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'features/saved/data/datasources/saved_remote_datasource.dart';
 import 'features/saved/data/repositories/saved_repository_impl.dart';
 import 'features/saved/domain/repositories/saved_repository.dart';
@@ -85,9 +84,12 @@ Future<void> initDependencies() async {
   await cacheService.init();
   sl.registerSingleton<CacheService>(cacheService);
 
+  final guestSession = GuestSession();
+  await guestSession.init();
+  sl.registerSingleton<GuestSession>(guestSession);
+
   sl.registerLazySingleton(() => OnboardingService());
-  _registerExploreFeature();
-  _registerCosmoDailyFeature();
+  await _registerCosmoDailyFeature();
   _registerVintageSpaceFeature();
   _registerProfileFeature();
   _registerAuthFeature();
@@ -97,33 +99,30 @@ Future<void> initDependencies() async {
   _registerNeoFeature();
   _registerExoplanetsFeature();
   _registerDonkiFeature();
-  _registerSavedFeature();
+  await _registerSavedFeature();
 }
 
-void _registerExploreFeature() {
-  sl.registerLazySingleton<ExploreLocalDataSource>(
-    () => ExploreLocalDataSourceImpl(),
+Future<void> _registerCosmoDailyFeature() async {
+  final apodBox = await Hive.openBox<dynamic>('apod_store');
+  sl.registerLazySingleton<ApodLocalDataSource>(
+    () => ApodLocalDataSourceImpl(apodBox),
   );
-  sl.registerLazySingleton<ExploreRepository>(
-    () => ExploreRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton(() => GetPlanets(sl()));
-  sl.registerLazySingleton(() => GetArticles(sl()));
-  sl.registerFactory(() => ExploreBloc(getPlanets: sl(), getArticles: sl()));
-}
-
-void _registerCosmoDailyFeature() {
   sl.registerLazySingleton<ApodRemoteDataSource>(
     () => const ApodRemoteDataSourceImpl(),
   );
-  sl.registerLazySingleton<ApodRepository>(() => ApodRepositoryImpl(sl()));
+  sl.registerLazySingleton<ApodRepository>(
+    () => ApodRepositoryImpl(local: sl(), remote: sl()),
+  );
   sl.registerLazySingleton(() => GetApodPictures(sl()));
-  sl.registerFactory(() => CosmoDailyBloc(getApodPictures: sl()));
+  sl.registerLazySingleton(() => FetchApodRange(sl()));
+  sl.registerFactory(
+    () => CosmoDailyBloc(getApodPictures: sl(), fetchApodRange: sl()),
+  );
 }
 
 void _registerVintageSpaceFeature() {
   sl.registerLazySingleton<NasaImagesRemoteDataSource>(
-    () => const NasaImagesRemoteDataSourceImpl(),
+    () => NasaImagesRemoteDataSourceImpl(cacheService: sl()),
   );
   sl.registerLazySingleton<NasaImagesRepository>(
     () => NasaImagesRepositoryImpl(sl()),
@@ -190,7 +189,7 @@ void _registerMarsRoverFeature() {
 
 void _registerEpicFeature() {
   sl.registerLazySingleton<EpicRemoteDataSource>(
-    () => const EpicRemoteDataSourceImpl(),
+    () => EpicRemoteDataSourceImpl(cacheService: sl()),
   );
   sl.registerLazySingleton<EpicRepository>(() => EpicRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetEpicImages(sl()));
@@ -210,7 +209,7 @@ void _registerIssTrackerFeature() {
 
 void _registerNeoFeature() {
   sl.registerLazySingleton<NeoRemoteDataSource>(
-    () => const NeoRemoteDataSourceImpl(),
+    () => NeoRemoteDataSourceImpl(cacheService: sl()),
   );
   sl.registerLazySingleton<NeoRepository>(() => NeoRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetNeos(sl()));
@@ -219,7 +218,7 @@ void _registerNeoFeature() {
 
 void _registerExoplanetsFeature() {
   sl.registerLazySingleton<ExoplanetsRemoteDataSource>(
-    () => const ExoplanetsRemoteDataSourceImpl(),
+    () => ExoplanetsRemoteDataSourceImpl(cacheService: sl()),
   );
   sl.registerLazySingleton<ExoplanetsRepository>(
     () => ExoplanetsRepositoryImpl(sl()),
@@ -230,16 +229,17 @@ void _registerExoplanetsFeature() {
 
 void _registerDonkiFeature() {
   sl.registerLazySingleton<DonkiRemoteDataSource>(
-    () => const DonkiRemoteDataSourceImpl(),
+    () => DonkiRemoteDataSourceImpl(cacheService: sl()),
   );
   sl.registerLazySingleton<DonkiRepository>(() => DonkiRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetSpaceWeatherEvents(sl()));
   sl.registerFactory(() => DonkiBloc(getSpaceWeatherEvents: sl()));
 }
 
-void _registerSavedFeature() {
-  sl.registerLazySingleton<SavedRemoteDataSource>(
-    () => SavedRemoteDataSourceImpl(),
+Future<void> _registerSavedFeature() async {
+  final box = await Hive.openBox<dynamic>('saved_apods');
+  sl.registerLazySingleton<SavedLocalDataSource>(
+    () => SavedLocalDataSourceImpl(box),
   );
   sl.registerLazySingleton<SavedRepository>(() => SavedRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetSavedItems(sl()));

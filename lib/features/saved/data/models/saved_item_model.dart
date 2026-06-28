@@ -16,6 +16,7 @@ class SavedItemModel extends SavedItemEntity {
         serviceVersion: apodMap['serviceVersion'] as String? ?? '',
         title: apodMap['title'] as String? ?? '',
         url: apodMap['url'] as String? ?? '',
+        thumbnailUrl: apodMap['thumbnailUrl'] as String? ?? '',
       ),
       savedAt: DateTime.parse(map['savedAt'] as String),
     );
@@ -32,6 +33,7 @@ class SavedItemModel extends SavedItemEntity {
         'serviceVersion': apod.serviceVersion,
         'title': apod.title,
         'url': apod.url,
+        'thumbnailUrl': apod.thumbnailUrl,
       },
       'savedAt': savedAt.toIso8601String(),
     };

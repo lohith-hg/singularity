@@ -12,7 +12,7 @@ class DonkiBloc extends Bloc<DonkiEvent, DonkiState> {
   final GetSpaceWeatherEvents getSpaceWeatherEvents;
 
   DonkiBloc({required this.getSpaceWeatherEvents})
-    : super(const DonkiInitial()) {
+      : super(const DonkiInitial()) {
     on<LoadSpaceWeatherEvent>(_onLoad);
   }
 
@@ -20,26 +20,34 @@ class DonkiBloc extends Bloc<DonkiEvent, DonkiState> {
     LoadSpaceWeatherEvent event,
     Emitter<DonkiState> emit,
   ) async {
-    emit(const DonkiLoading());
-    try {
-      final today = DateTime.now();
-      final sevenDaysAgo = today.subtract(const Duration(days: 7));
+    final today = DateTime.now();
+    final sevenDaysAgo = today.subtract(const Duration(days: 7));
 
-      final events = await getSpaceWeatherEvents(
-        DonkiParams(
-          startDate: _formatDate(sevenDaysAgo),
-          endDate: _formatDate(today),
-        ),
-      );
+    final res = await getSpaceWeatherEvents(
+      DonkiParams(
+        startDate: _formatDate(sevenDaysAgo),
+        endDate: _formatDate(today),
+      ),
+    );
 
-      // Sort by time descending
-      events.sort((a, b) => b.time.compareTo(a.time));
-
-      emit(DonkiLoaded(events: events));
-    } on ServerException catch (e) {
-      emit(DonkiError(e.message));
-    } catch (e) {
-      emit(DonkiError(e.toString()));
+    final cached = res.cached;
+    if (cached != null) {
+      final sorted = List.of(cached)..sort((a, b) => b.time.compareTo(a.time));
+      emit(DonkiLoaded(events: sorted));
+    } else {
+      emit(const DonkiLoading());
+    }
+    if (res.isStale) {
+      try {
+        final fresh = await res.refresh();
+        final sorted = List.of(fresh)
+          ..sort((a, b) => b.time.compareTo(a.time));
+        emit(DonkiLoaded(events: sorted));
+      } on ServerException catch (e) {
+        if (cached == null) emit(DonkiError(e.message));
+      } catch (e) {
+        if (cached == null) emit(DonkiError(e.toString()));
+      }
     }
   }
 

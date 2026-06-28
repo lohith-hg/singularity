@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -18,21 +20,46 @@ class VintageSpaceBloc extends Bloc<VintageSpaceEvent, VintageSpaceState> {
     required this.searchNasaImages,
   }) : super(const VintageSpaceInitial()) {
     on<LoadVintageSpaceEvent>(_onLoad);
-    on<RefreshVintageSpaceEvent>(_onLoad);
+    on<RefreshVintageSpaceEvent>(_onRefresh);
     on<SearchVintageSpaceEvent>(_onSearch);
     on<ClearVintageSpaceSearchEvent>(_onClearSearch);
   }
+
+  static List<T> _shuffled<T>(List<T> l) => List.of(l)..shuffle(Random());
 
   Future<void> _onLoad(
     VintageSpaceEvent event,
     Emitter<VintageSpaceState> emit,
   ) async {
-    emit(const VintageSpaceLoading());
+    final res = await getVintageImages(NoParams());
+    final cached = res.cached;
+    if (cached != null) {
+      emit(VintageSpaceLoaded(images: _shuffled(cached)));
+    } else {
+      emit(const VintageSpaceLoading());
+    }
+    if (res.isStale) {
+      try {
+        emit(VintageSpaceLoaded(images: _shuffled(await res.refresh())));
+      } catch (e) {
+        if (cached == null) emit(VintageSpaceError(e.toString()));
+      }
+    }
+  }
+
+  // Pull-to-refresh / manual refresh: always hits the network and re-picks a
+  // fresh set of topics, bypassing the cache TTL. Existing content stays on
+  // screen (no Loading emitted) until the new data arrives.
+  Future<void> _onRefresh(
+    RefreshVintageSpaceEvent event,
+    Emitter<VintageSpaceState> emit,
+  ) async {
+    final current = state;
+    final res = await getVintageImages(NoParams());
     try {
-      final images = await getVintageImages(NoParams());
-      emit(VintageSpaceLoaded(images: images));
+      emit(VintageSpaceLoaded(images: _shuffled(await res.refresh())));
     } catch (e) {
-      emit(VintageSpaceError(e.toString()));
+      if (current is! VintageSpaceLoaded) emit(VintageSpaceError(e.toString()));
     }
   }
 

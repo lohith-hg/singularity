@@ -11,6 +11,10 @@ class ApodEntity extends Equatable {
   final String title;
   final String url;
 
+  /// Poster image for video APODs (from the API's `thumbnail_url`). Empty for
+  /// image APODs.
+  final String thumbnailUrl;
+
   const ApodEntity({
     required this.copyright,
     required this.date,
@@ -20,6 +24,7 @@ class ApodEntity extends Equatable {
     required this.serviceVersion,
     required this.title,
     required this.url,
+    this.thumbnailUrl = '',
   });
 
   @override

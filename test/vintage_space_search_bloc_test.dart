@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:singularity/core/services/cached_resource.dart';
 import 'package:singularity/features/vintage_space/domain/entities/nasa_image_entity.dart';
 import 'package:singularity/features/vintage_space/domain/repositories/nasa_images_repository.dart';
 import 'package:singularity/features/vintage_space/domain/usecases/get_vintage_images.dart';
@@ -94,7 +95,8 @@ class _FakeImagesRepository implements NasaImagesRepository {
   final Object? error;
 
   @override
-  Future<List<NasaImageEntity>> getImagesByTopic(String topic) async => [];
+  CachedResource<List<NasaImageEntity>> getVintageImages() =>
+      CachedResource(cached: [], isStale: false, refresh: () async => []);
 
   @override
   Future<List<NasaImageEntity>> searchImages(String query) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/widgets/s_round_btn.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -159,12 +160,7 @@ class _IssTrackerPageState extends State<IssTrackerPage> {
         ),
       ),
       child: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.bone,
-                strokeWidth: 1.5,
-              ),
-            )
+          ? const _IssShimmer()
           : isError
           ? Center(
               child: Text(
@@ -254,6 +250,65 @@ class _IssTrackerPageState extends State<IssTrackerPage> {
   }
 }
 
+class _IssShimmer extends StatelessWidget {
+  const _IssShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.ink2,
+      highlightColor: AppColors.ink3,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _box(60, 10),
+          const SizedBox(height: AppSpacing.sp4),
+          _box(180, 32),
+          const SizedBox(height: AppSpacing.sp12),
+          // Stats row — 4 items
+          Row(
+            children: List.generate(
+              4,
+              (i) => Expanded(
+                child: Row(
+                  children: [
+                    if (i != 0)
+                      Container(
+                        width: 1,
+                        height: 28,
+                        color: AppColors.ink2,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                      ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _box(40, 13),
+                          const SizedBox(height: 4),
+                          _box(28, 9),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _box(double width, double height) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: AppColors.ink2,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
+}
+
 class _WorldMapWithIss extends StatelessWidget {
   const _WorldMapWithIss({this.lat, this.lon});
   final double? lat;
@@ -305,35 +360,270 @@ class _WorldGridPainter extends CustomPainter {
   // Each unit = 1 degree (x: lon+180, y: 90-lat).
   static const _continents = [
     // North America
-    [55,30, 60,28, 70,25, 80,22, 90,24, 95,28, 100,32, 105,38, 108,45, 105,52, 100,58, 95,62, 90,68, 85,72, 80,75, 75,78, 72,82, 70,85, 65,88, 60,90, 55,88, 52,84, 50,80, 48,75, 46,68, 45,62, 44,55, 44,48, 46,42, 50,36],
+    [
+      55,
+      30,
+      60,
+      28,
+      70,
+      25,
+      80,
+      22,
+      90,
+      24,
+      95,
+      28,
+      100,
+      32,
+      105,
+      38,
+      108,
+      45,
+      105,
+      52,
+      100,
+      58,
+      95,
+      62,
+      90,
+      68,
+      85,
+      72,
+      80,
+      75,
+      75,
+      78,
+      72,
+      82,
+      70,
+      85,
+      65,
+      88,
+      60,
+      90,
+      55,
+      88,
+      52,
+      84,
+      50,
+      80,
+      48,
+      75,
+      46,
+      68,
+      45,
+      62,
+      44,
+      55,
+      44,
+      48,
+      46,
+      42,
+      50,
+      36,
+    ],
     // Central America
-    [72,88, 75,92, 73,96, 70,98, 68,95, 70,91],
+    [72, 88, 75, 92, 73, 96, 70, 98, 68, 95, 70, 91],
     // Greenland
-    [80,10, 90,8, 100,10, 105,15, 102,22, 95,25, 86,24, 80,18],
+    [80, 10, 90, 8, 100, 10, 105, 15, 102, 22, 95, 25, 86, 24, 80, 18],
     // South America
-    [72,98, 78,96, 85,98, 92,102, 96,108, 98,116, 96,124, 92,130, 86,135, 80,138, 74,136, 70,130, 68,122, 66,114, 66,106, 68,100],
+    [
+      72,
+      98,
+      78,
+      96,
+      85,
+      98,
+      92,
+      102,
+      96,
+      108,
+      98,
+      116,
+      96,
+      124,
+      92,
+      130,
+      86,
+      135,
+      80,
+      138,
+      74,
+      136,
+      70,
+      130,
+      68,
+      122,
+      66,
+      114,
+      66,
+      106,
+      68,
+      100,
+    ],
     // Europe
-    [155,28, 162,26, 170,26, 178,28, 182,32, 180,38, 175,42, 170,44, 165,46, 160,48, 155,46, 152,42, 152,36],
+    [
+      155,
+      28,
+      162,
+      26,
+      170,
+      26,
+      178,
+      28,
+      182,
+      32,
+      180,
+      38,
+      175,
+      42,
+      170,
+      44,
+      165,
+      46,
+      160,
+      48,
+      155,
+      46,
+      152,
+      42,
+      152,
+      36,
+    ],
     // Scandinavia
-    [162,18, 168,16, 172,20, 170,26, 164,27, 160,24],
+    [162, 18, 168, 16, 172, 20, 170, 26, 164, 27, 160, 24],
     // Africa
-    [155,52, 162,50, 170,50, 178,52, 182,58, 184,66, 184,76, 182,86, 178,96, 172,104, 166,110, 160,112, 154,110, 150,104, 148,96, 148,86, 148,76, 150,66, 152,58],
+    [
+      155,
+      52,
+      162,
+      50,
+      170,
+      50,
+      178,
+      52,
+      182,
+      58,
+      184,
+      66,
+      184,
+      76,
+      182,
+      86,
+      178,
+      96,
+      172,
+      104,
+      166,
+      110,
+      160,
+      112,
+      154,
+      110,
+      150,
+      104,
+      148,
+      96,
+      148,
+      86,
+      148,
+      76,
+      150,
+      66,
+      152,
+      58,
+    ],
     // Russia / Asia
-    [178,22, 195,18, 215,16, 235,18, 250,22, 262,28, 268,34, 265,40, 256,44, 244,46, 230,48, 215,50, 200,50, 188,48, 180,44, 178,38],
+    [
+      178,
+      22,
+      195,
+      18,
+      215,
+      16,
+      235,
+      18,
+      250,
+      22,
+      262,
+      28,
+      268,
+      34,
+      265,
+      40,
+      256,
+      44,
+      244,
+      46,
+      230,
+      48,
+      215,
+      50,
+      200,
+      50,
+      188,
+      48,
+      180,
+      44,
+      178,
+      38,
+    ],
     // Middle East
-    [182,46, 192,44, 200,46, 205,52, 202,58, 196,60, 188,58, 182,54],
+    [182, 46, 192, 44, 200, 46, 205, 52, 202, 58, 196, 60, 188, 58, 182, 54],
     // India
-    [208,52, 218,50, 225,54, 226,62, 222,70, 216,74, 210,70, 206,62],
+    [208, 52, 218, 50, 225, 54, 226, 62, 222, 70, 216, 74, 210, 70, 206, 62],
     // Southeast Asia
-    [238,50, 250,48, 260,50, 268,56, 266,62, 258,66, 248,65, 240,60],
+    [238, 50, 250, 48, 260, 50, 268, 56, 266, 62, 258, 66, 248, 65, 240, 60],
     // China
-    [228,34, 245,32, 260,34, 268,40, 265,48, 252,50, 238,50, 228,46, 224,40],
+    [
+      228,
+      34,
+      245,
+      32,
+      260,
+      34,
+      268,
+      40,
+      265,
+      48,
+      252,
+      50,
+      238,
+      50,
+      228,
+      46,
+      224,
+      40,
+    ],
     // Japan
-    [275,32, 280,30, 284,34, 282,40, 277,42, 274,38],
+    [275, 32, 280, 30, 284, 34, 282, 40, 277, 42, 274, 38],
     // Australia
-    [250,108, 265,104, 280,106, 292,112, 296,120, 292,128, 282,134, 268,136, 255,132, 246,124, 244,116],
+    [
+      250,
+      108,
+      265,
+      104,
+      280,
+      106,
+      292,
+      112,
+      296,
+      120,
+      292,
+      128,
+      282,
+      134,
+      268,
+      136,
+      255,
+      132,
+      246,
+      124,
+      244,
+      116,
+    ],
     // New Zealand
-    [302,126, 308,124, 312,128, 310,134, 305,136, 302,131],
+    [302, 126, 308, 124, 312, 128, 310, 134, 305, 136, 302, 131],
   ];
 
   @override
@@ -347,10 +637,18 @@ class _WorldGridPainter extends CustomPainter {
       ..strokeWidth = 0.5
       ..style = PaintingStyle.stroke;
     for (final lat in [45.0, 90.0, 135.0]) {
-      canvas.drawLine(Offset(0, lat * sy), Offset(size.width, lat * sy), gridPaint);
+      canvas.drawLine(
+        Offset(0, lat * sy),
+        Offset(size.width, lat * sy),
+        gridPaint,
+      );
     }
     for (final lon in [60.0, 120.0, 180.0, 240.0, 300.0]) {
-      canvas.drawLine(Offset(lon * sx, 0), Offset(lon * sx, size.height), gridPaint);
+      canvas.drawLine(
+        Offset(lon * sx, 0),
+        Offset(lon * sx, size.height),
+        gridPaint,
+      );
     }
 
     // Continent fills (4% opacity) and strokes (35% opacity)

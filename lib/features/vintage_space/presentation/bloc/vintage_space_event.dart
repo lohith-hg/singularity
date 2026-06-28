@@ -4,7 +4,8 @@ abstract class VintageSpaceEvent {}
 
 class LoadVintageSpaceEvent extends VintageSpaceEvent {}
 
-// Re-picks 8 random topics and re-fetches — replaces calling onInit() directly.
+// Force refresh (pull-to-refresh or header button): always hits the network,
+// re-picking 8 random topics and bypassing the cache TTL.
 class RefreshVintageSpaceEvent extends VintageSpaceEvent {}
 
 class SearchVintageSpaceEvent extends VintageSpaceEvent {

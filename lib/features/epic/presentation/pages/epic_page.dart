@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/widgets/s_round_btn.dart';
 import '../../../../../app/widgets/scrim_widget.dart';
@@ -34,13 +35,8 @@ class _EpicPageState extends State<EpicPage> {
       builder: (context, state) {
         if (state is EpicLoading || state is EpicInitial) {
           return const Scaffold(
-            backgroundColor: Color(0xFF0A0A0F),
-            body: Center(
-              child: CircularProgressIndicator(
-                color: AppColors.bone,
-                strokeWidth: 1.5,
-              ),
-            ),
+            backgroundColor: AppColors.ink,
+            body: _EpicShimmer(),
           );
         }
 
@@ -241,4 +237,58 @@ class _EpicPageState extends State<EpicPage> {
     if (timeParts.length < 2) return parts[1];
     return '${timeParts[0]}:${timeParts[1]} UTC';
   }
+}
+
+class _EpicShimmer extends StatelessWidget {
+  const _EpicShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.ink2,
+      highlightColor: AppColors.ink3,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Full-screen image placeholder
+          Container(color: AppColors.ink2),
+          // Bottom overlay skeleton
+          Positioned(
+            left: AppSpacing.sp20,
+            right: AppSpacing.sp20,
+            bottom: AppSpacing.sp32,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _box(80, 10),
+                const SizedBox(height: AppSpacing.sp8),
+                _box(200, 32),
+                const SizedBox(height: AppSpacing.sp4),
+                _box(120, 10),
+                const SizedBox(height: AppSpacing.sp16),
+                // Scrubber bar
+                Container(
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: AppColors.ink2,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _box(double width, double height) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: AppColors.ink2,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
 }

@@ -19,7 +19,7 @@ void main() {
       ),
     );
 
-    await dataSource.getApodPictures(
+    await dataSource.fetchApods(
       startDate: DateTime.utc(2026, 5, 9, 13),
       daysBack: 2,
     );
@@ -44,7 +44,8 @@ void main() {
         ),
       );
 
-      await dataSource.getRoverPhotos(rover: 'Curiosity', page: 2);
+      final resource = dataSource.getRoverPhotos(rover: 'Curiosity', page: 2);
+      await resource.refresh();
 
       expect(requestedUri?.path, '/search');
       expect(requestedUri?.queryParameters['q'], 'Curiosity rover mars');
@@ -65,7 +66,11 @@ void main() {
       ),
     );
 
-    await dataSource.getNeos(startDate: '2026-05-01', endDate: '2026-05-20');
+    final resource = dataSource.getNeos(
+      startDate: '2026-05-01',
+      endDate: '2026-05-20',
+    );
+    await resource.refresh();
 
     expect(requestedUri?.queryParameters['start_date'], '2026-05-01');
     expect(requestedUri?.queryParameters['end_date'], '2026-05-08');
@@ -82,7 +87,8 @@ void main() {
       ),
     );
 
-    await dataSource.getExoplanets();
+    final resource = dataSource.getExoplanets();
+    await resource.refresh();
 
     expect(requestedUri?.host, 'exoplanetarchive.ipac.caltech.edu');
     expect(requestedUri?.path, '/TAP/sync');

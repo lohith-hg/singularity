@@ -1,40 +1,67 @@
 import 'dart:convert';
 
 import '../../../../core/constants/nasa_api.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/services/cache_service.dart';
+import '../../../../core/services/cached_resource.dart';
 import '../models/space_weather_event_model.dart';
 
 abstract class DonkiRemoteDataSource {
-  Future<List<SpaceWeatherEventModel>> getSpaceWeatherEvents({
+  CachedResource<List<SpaceWeatherEventModel>> getSpaceWeatherEvents({
     required String startDate,
     required String endDate,
   });
 }
 
 class DonkiRemoteDataSourceImpl implements DonkiRemoteDataSource {
-  const DonkiRemoteDataSourceImpl({ApiClient apiClient = const ApiClient()})
-    : _apiClient = apiClient;
+  DonkiRemoteDataSourceImpl({
+    CacheService? cacheService,
+    ApiClient apiClient = const ApiClient(),
+  })  : _cache = cacheService,
+        _apiClient = apiClient;
 
+  final CacheService? _cache;
   final ApiClient _apiClient;
 
+  static const _ttl = Duration(hours: 12);
+
   @override
-  Future<List<SpaceWeatherEventModel>> getSpaceWeatherEvents({
+  CachedResource<List<SpaceWeatherEventModel>> getSpaceWeatherEvents({
     required String startDate,
     required String endDate,
-  }) async {
+  }) {
+    Future<List<SpaceWeatherEventModel>> fetch() =>
+        _fetchAll(startDate, endDate);
+
+    final cache = _cache;
+    if (cache == null) {
+      return CachedResource(
+        cached: null,
+        isStale: true,
+        refresh: fetch,
+      );
+    }
+
+    return cache.swrComposed(
+      key: 'donki_7d',
+      ttl: _ttl,
+      fetch: fetch,
+      encode: spaceWeatherEventListToJson,
+      decode: spaceWeatherEventListFromCached,
+    );
+  }
+
+  Future<List<SpaceWeatherEventModel>> _fetchAll(
+    String startDate,
+    String endDate,
+  ) async {
     final results = await Future.wait([
       _fetchEndpoint('CME', startDate, endDate, SpaceWeatherEventModel.fromCme),
       _fetchEndpoint('FLR', startDate, endDate, SpaceWeatherEventModel.fromFlr),
       _fetchEndpoint('GST', startDate, endDate, SpaceWeatherEventModel.fromGst),
       _fetchEndpoint('SEP', startDate, endDate, SpaceWeatherEventModel.fromSep),
     ]);
-
-    final events = results.expand((list) => list).toList();
-    if (events.isEmpty && results.every((list) => list.isEmpty)) {
-      return events;
-    }
-    return events;
+    return results.expand((list) => list).toList();
   }
 
   Future<List<SpaceWeatherEventModel>> _fetchEndpoint(
@@ -50,11 +77,12 @@ class DonkiRemoteDataSourceImpl implements DonkiRemoteDataSource {
     });
 
     try {
-      final response = await _apiClient.get(uri, label: 'NASA DONKI $endpoint');
+      final response =
+          await _apiClient.get(uri, label: 'NASA DONKI $endpoint');
       final decoded = json.decode(response.body) as List? ?? [];
-      return decoded.map((x) => mapper(x as Map<String, dynamic>)).toList();
-    } on ServerException {
-      return const [];
+      return decoded
+          .map((x) => mapper(x as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return const [];
     }

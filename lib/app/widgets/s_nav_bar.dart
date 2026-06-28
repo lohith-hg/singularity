@@ -15,19 +15,14 @@ class SNavBar extends StatelessWidget {
       activeIcon: Icons.wb_sunny,
     ),
     _NavItem(
-      label: 'Explore',
-      icon: Icons.compass_calibration_outlined,
-      activeIcon: Icons.compass_calibration,
-    ),
-    _NavItem(
-      label: 'Tracker',
-      icon: Icons.satellite_outlined,
-      activeIcon: Icons.satellite,
-    ),
-    _NavItem(
       label: 'Mars',
       icon: Icons.public_outlined,
       activeIcon: Icons.public,
+    ),
+    _NavItem(
+      label: 'Vault',
+      icon: Icons.auto_stories_outlined,
+      activeIcon: Icons.auto_stories,
     ),
     _NavItem(label: 'Me', icon: Icons.person_outline, activeIcon: Icons.person),
   ];

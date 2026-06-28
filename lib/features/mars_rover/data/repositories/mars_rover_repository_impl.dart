@@ -1,3 +1,4 @@
+import '../../../../core/services/cached_resource.dart';
 import '../../domain/entities/rover_photo_entity.dart';
 import '../../domain/repositories/mars_rover_repository.dart';
 import '../datasources/mars_rover_remote_datasource.dart';
@@ -7,11 +8,11 @@ class MarsRoverRepositoryImpl implements MarsRoverRepository {
   MarsRoverRepositoryImpl(this.dataSource);
 
   @override
-  Future<List<RoverPhotoEntity>> getRoverPhotos({
+  CachedResource<List<RoverPhotoEntity>> getRoverPhotos({
     required String rover,
     required int page,
-  }) async {
-    final models = await dataSource.getRoverPhotos(rover: rover, page: page);
-    return models.map((m) => m.toEntity()).toList();
-  }
+  }) =>
+      dataSource
+          .getRoverPhotos(rover: rover, page: page)
+          .map((models) => models.map((m) => m.toEntity()).toList());
 }

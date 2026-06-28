@@ -1,40 +1,45 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../../shared/entities/apod_entity.dart';
 import '../models/saved_item_model.dart';
 
-abstract class SavedRemoteDataSource {
-  Future<List<SavedItemModel>> getSavedItems(String uid);
-  Future<void> saveApod(String uid, ApodEntity apod);
-  Future<void> unsaveApod(String uid, String apodDate);
+abstract class SavedLocalDataSource {
+  Future<List<SavedItemModel>> getSavedItems();
+  Future<void> saveApod(ApodEntity apod);
+  Future<void> unsaveApod(String apodDate);
 }
 
-class SavedRemoteDataSourceImpl implements SavedRemoteDataSource {
-  final _firestore = FirebaseFirestore.instance;
-
-  CollectionReference<Map<String, dynamic>> _collection(String uid) =>
-      _firestore.collection('users').doc(uid).collection('saved_items');
+class SavedLocalDataSourceImpl implements SavedLocalDataSource {
+  final Box<dynamic> _box;
+  SavedLocalDataSourceImpl(this._box);
 
   @override
-  Future<List<SavedItemModel>> getSavedItems(String uid) async {
-    final snapshot = await _collection(
-      uid,
-    ).orderBy('savedAt', descending: true).get();
-    return snapshot.docs
-        .map((doc) => SavedItemModel.fromMap(doc.data()))
-        .toList();
+  Future<List<SavedItemModel>> getSavedItems() async {
+    final items =
+        _box.values
+            .map(
+              (v) => SavedItemModel.fromMap(
+                jsonDecode(v as String) as Map<String, dynamic>,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    return items;
   }
 
   @override
-  Future<void> saveApod(String uid, ApodEntity apod) async {
-    final dateKey = apod.date.toIso8601String().split('T').first;
+  Future<void> saveApod(ApodEntity apod) async {
     final model = SavedItemModel(apod: apod, savedAt: DateTime.now());
-    await _collection(uid).doc(dateKey).set(model.toMap());
+    await _box.put(
+      apod.date.toIso8601String().split('T').first,
+      jsonEncode(model.toMap()),
+    );
   }
 
   @override
-  Future<void> unsaveApod(String uid, String apodDate) async {
-    final dateKey = apodDate.split('T').first;
-    await _collection(uid).doc(dateKey).delete();
+  Future<void> unsaveApod(String apodDate) async {
+    await _box.delete(apodDate.split('T').first);
   }
 }

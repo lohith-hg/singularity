@@ -16,24 +16,33 @@ class NeoBloc extends Bloc<NeoEvent, NeoState> {
   }
 
   Future<void> _onLoad(LoadNeosEvent event, Emitter<NeoState> emit) async {
-    emit(const NeoLoading());
-    try {
-      final now = DateTime.now();
-      final monday = now.subtract(Duration(days: now.weekday - 1));
-      final sunday = monday.add(const Duration(days: 6));
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+    final sunday = monday.add(const Duration(days: 6));
 
-      final neos = await getNeos(
-        NeoParams(startDate: _formatDate(monday), endDate: _formatDate(sunday)),
-      );
+    final res = await getNeos(
+      NeoParams(startDate: _formatDate(monday), endDate: _formatDate(sunday)),
+    );
 
-      // Sort by closeApproachDate ascending
-      neos.sort((a, b) => a.closeApproachDate.compareTo(b.closeApproachDate));
-
-      emit(NeoLoaded(neos: neos));
-    } on ServerException catch (e) {
-      emit(NeoError(e.message));
-    } catch (e) {
-      emit(NeoError(e.toString()));
+    final cached = res.cached;
+    if (cached != null) {
+      final sorted = List.of(cached)
+        ..sort((a, b) => a.closeApproachDate.compareTo(b.closeApproachDate));
+      emit(NeoLoaded(neos: sorted));
+    } else {
+      emit(const NeoLoading());
+    }
+    if (res.isStale) {
+      try {
+        final fresh = await res.refresh();
+        final sorted = List.of(fresh)
+          ..sort((a, b) => a.closeApproachDate.compareTo(b.closeApproachDate));
+        emit(NeoLoaded(neos: sorted));
+      } on ServerException catch (e) {
+        if (cached == null) emit(NeoError(e.message));
+      } catch (e) {
+        if (cached == null) emit(NeoError(e.toString()));
+      }
     }
   }
 

@@ -1,3 +1,4 @@
+import '../../../../core/services/cached_resource.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/space_weather_event_entity.dart';
 import '../repositories/donki_repository.dart';
@@ -9,15 +10,17 @@ class DonkiParams {
 }
 
 class GetSpaceWeatherEvents
-    implements UseCase<List<SpaceWeatherEventEntity>, DonkiParams> {
+    implements
+        UseCase<CachedResource<List<SpaceWeatherEventEntity>>, DonkiParams> {
   final DonkiRepository repository;
   GetSpaceWeatherEvents(this.repository);
 
   @override
-  Future<List<SpaceWeatherEventEntity>> call(DonkiParams params) {
-    return repository.getSpaceWeatherEvents(
-      startDate: params.startDate,
-      endDate: params.endDate,
-    );
-  }
+  Future<CachedResource<List<SpaceWeatherEventEntity>>> call(
+    DonkiParams params,
+  ) async =>
+      repository.getSpaceWeatherEvents(
+        startDate: params.startDate,
+        endDate: params.endDate,
+      );
 }

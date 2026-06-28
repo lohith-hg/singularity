@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:singularity/core/error/exceptions.dart';
+import 'package:singularity/core/services/guest_session.dart';
 import 'package:singularity/core/usecases/usecase.dart';
+import 'package:singularity/injection_container.dart';
 import 'package:singularity/features/auth/domain/entities/user_entity.dart';
 import 'package:singularity/features/auth/domain/usecases/get_auth_state.dart';
 import 'package:singularity/features/auth/domain/usecases/reset_password.dart';
@@ -56,6 +58,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) {
     if (event.user != null) {
+      // A real account is now signed in — drop any guest session so a later
+      // sign-out correctly returns to the login wall.
+      unawaited(sl<GuestSession>().exit());
       emit(AuthAuthenticated(event.user!));
     } else {
       emit(const AuthUnauthenticated());

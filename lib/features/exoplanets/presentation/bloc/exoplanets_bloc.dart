@@ -14,7 +14,7 @@ class ExoplanetsBloc extends Bloc<ExoplanetsEvent, ExoplanetsState> {
   List<ExoplanetEntity> _allPlanets = [];
 
   ExoplanetsBloc({required this.getExoplanets})
-    : super(const ExoplanetsInitial()) {
+      : super(const ExoplanetsInitial()) {
     on<LoadExoplanetsEvent>(_onLoad);
     on<FilterExoplanetsEvent>(_onFilter);
   }
@@ -23,14 +23,24 @@ class ExoplanetsBloc extends Bloc<ExoplanetsEvent, ExoplanetsState> {
     LoadExoplanetsEvent event,
     Emitter<ExoplanetsState> emit,
   ) async {
-    emit(const ExoplanetsLoading());
-    try {
-      _allPlanets = await getExoplanets(NoParams());
+    final res = await getExoplanets(NoParams());
+    final cached = res.cached;
+    if (cached != null) {
+      _allPlanets = cached;
       emit(ExoplanetsLoaded(planets: _allPlanets, filter: 'All'));
-    } on ServerException catch (e) {
-      emit(ExoplanetsError(e.message));
-    } catch (e) {
-      emit(ExoplanetsError(e.toString()));
+    } else {
+      emit(const ExoplanetsLoading());
+    }
+    if (res.isStale) {
+      try {
+        final fresh = await res.refresh();
+        _allPlanets = fresh;
+        emit(ExoplanetsLoaded(planets: _allPlanets, filter: 'All'));
+      } on ServerException catch (e) {
+        if (cached == null) emit(ExoplanetsError(e.message));
+      } catch (e) {
+        if (cached == null) emit(ExoplanetsError(e.toString()));
+      }
     }
   }
 

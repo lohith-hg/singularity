@@ -39,6 +39,24 @@ class HistoryAlbumModel {
     );
   }
 
+  /// Deserialise from the flat cached format written by [toJson].
+  factory HistoryAlbumModel.fromCached(Map<String, dynamic> json) =>
+      HistoryAlbumModel(
+        title: json['title'] as String?,
+        description: json['description'] as String?,
+        imageUrl: json['imageUrl'] as String?,
+        dateCreated: json['dateCreated'] != null
+            ? DateTime.tryParse(json['dateCreated'] as String)
+            : null,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'description': description,
+        'imageUrl': imageUrl,
+        'dateCreated': dateCreated?.toIso8601String(),
+      };
+
   // Returns null if the item lacks required fields — filtered out in the repository.
   NasaImageEntity? toEntity() {
     if (title == null ||

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -16,18 +18,27 @@ class EpicBloc extends Bloc<EpicEvent, EpicState> {
     on<LoadEpicImagesEvent>(_onLoad);
   }
 
+  static List<T> _shuffled<T>(List<T> l) => List.of(l)..shuffle(Random());
+
   Future<void> _onLoad(
     LoadEpicImagesEvent event,
     Emitter<EpicState> emit,
   ) async {
-    emit(const EpicLoading());
-    try {
-      final images = await getEpicImages(NoParams());
-      emit(EpicLoaded(images: images));
-    } on ServerException catch (e) {
-      emit(EpicError(e.message));
-    } catch (e) {
-      emit(EpicError(e.toString()));
+    final res = await getEpicImages(NoParams());
+    final cached = res.cached;
+    if (cached != null) {
+      emit(EpicLoaded(images: _shuffled(cached)));
+    } else {
+      emit(const EpicLoading());
+    }
+    if (res.isStale) {
+      try {
+        emit(EpicLoaded(images: _shuffled(await res.refresh())));
+      } on ServerException catch (e) {
+        if (cached == null) emit(EpicError(e.message));
+      } catch (e) {
+        if (cached == null) emit(EpicError(e.toString()));
+      }
     }
   }
 }

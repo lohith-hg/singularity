@@ -11,6 +11,11 @@ class LoadRoverPhotosEvent extends MarsRoverEvent {
   LoadRoverPhotosEvent({required this.rover});
 }
 
+/// Pull-to-refresh: force a fresh network fetch for the active rover tab
+/// (all three for "all", or the single selected rover), bypassing the cache
+/// TTL. Keeps current content on screen until the new data arrives.
+class RefreshMarsRoverEvent extends MarsRoverEvent {}
+
 /// Switches the active rover tab; fetches from cache or network as needed.
 class SelectRoverEvent extends MarsRoverEvent {
   final String rover;

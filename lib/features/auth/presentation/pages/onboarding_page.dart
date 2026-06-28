@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../app/widgets/s_button.dart';
 import '../../../../../../app/widgets/scrim_widget.dart';
+import '../../../../../../core/services/guest_session.dart';
 import '../../../../../../core/services/onboarding_service.dart';
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../core/theme/app_spacing.dart';
@@ -14,6 +15,12 @@ class OnboardingPage extends StatelessWidget {
   Future<void> _begin(BuildContext context) async {
     await sl<OnboardingService>().markOnboardingComplete();
     if (context.mounted) context.go('/login');
+  }
+
+  Future<void> _continueAsGuest(BuildContext context) async {
+    await sl<OnboardingService>().markOnboardingComplete();
+    await sl<GuestSession>().enter();
+    if (context.mounted) context.go('/home');
   }
 
   @override
@@ -95,6 +102,35 @@ class OnboardingPage extends StatelessWidget {
                               fontFamily: 'Geist',
                               fontSize: 13,
                               color: AppColors.bone3,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sp12),
+                      Center(
+                        child: GestureDetector(
+                          onTap: () => _continueAsGuest(context),
+                          child: const Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Just here to explore? ',
+                                  style: TextStyle(
+                                    fontFamily: 'Geist',
+                                    fontSize: 13,
+                                    color: AppColors.bone3,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: 'Skip the login →',
+                                  style: TextStyle(
+                                    fontFamily: 'Geist',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.signal,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

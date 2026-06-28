@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../../app/widgets/singularity_logo.dart';
+import '../../../../../../core/services/guest_session.dart';
 import '../../../../../../core/services/onboarding_service.dart';
 import '../../../../../../core/theme/app_colors.dart';
 import '../../../../../../injection_container.dart';
@@ -27,11 +28,12 @@ class _SplashPageState extends State<SplashPage> {
 
     final onboarded = await sl<OnboardingService>().isOnboardingComplete();
     final authed = FirebaseAuth.instance.currentUser != null;
+    final isGuest = sl<GuestSession>().isActive;
 
     if (!mounted) return;
     if (!onboarded) {
       context.go('/onboarding');
-    } else if (authed) {
+    } else if (authed || isGuest) {
       context.go('/home');
     } else {
       context.go('/login');

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/widgets/s_round_btn.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -34,14 +35,7 @@ class _NeoPageState extends State<NeoPage> {
               slivers: [
                 SliverToBoxAdapter(child: _buildHeader(state)),
                 if (state is NeoLoading || state is NeoInitial)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.bone,
-                        strokeWidth: 1.5,
-                      ),
-                    ),
-                  )
+                  const SliverToBoxAdapter(child: _NeoShimmer())
                 else if (state is NeoError)
                   SliverFillRemaining(
                     child: Center(
@@ -151,6 +145,76 @@ class _NeoPageState extends State<NeoPage> {
       ),
     );
   }
+}
+
+class _NeoShimmer extends StatelessWidget {
+  const _NeoShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.ink2,
+      highlightColor: AppColors.ink3,
+      child: Column(children: List.generate(8, (i) => _neoRow(i))),
+    );
+  }
+
+  Widget _neoRow(int i) => Column(
+    children: [
+      if (i != 0) Container(height: 1, color: AppColors.ink2),
+      Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sp20,
+          vertical: AppSpacing.sp16,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Date column
+            SizedBox(
+              width: 44,
+              child: Column(
+                children: [
+                  _box(32, 24),
+                  const SizedBox(height: 4),
+                  _box(28, 10),
+                ],
+              ),
+            ),
+            // Vertical divider
+            Container(
+              width: 1,
+              height: 60,
+              color: AppColors.ink2,
+              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sp12),
+            ),
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _box(double.infinity, 13),
+                  const SizedBox(height: AppSpacing.sp4),
+                  _box(180, 10),
+                  const SizedBox(height: 4),
+                  _box(160, 10),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+
+  Widget _box(double width, double height) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: AppColors.ink2,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
 }
 
 class _NeoItem extends StatelessWidget {

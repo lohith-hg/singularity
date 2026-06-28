@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/modules/home/views/home_view.dart';
+import '../services/guest_session.dart';
 import '../../features/auth/presentation/pages/forgot_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
@@ -49,15 +50,17 @@ class _AuthRefreshStream extends ChangeNotifier {
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
-  refreshListenable: _AuthRefreshStream(
-    FirebaseAuth.instance.authStateChanges(),
-  ),
+  refreshListenable: Listenable.merge([
+    _AuthRefreshStream(FirebaseAuth.instance.authStateChanges()),
+    sl<GuestSession>(),
+  ]),
   redirect: (context, state) {
     final isLoggedIn = FirebaseAuth.instance.currentUser != null;
+    final isGuest = sl<GuestSession>().isActive;
     final loc = state.matchedLocation;
 
     if (loc == '/splash' || loc == '/onboarding') return null;
-    if (!isLoggedIn && loc == '/home') return '/login';
+    if (!isLoggedIn && !isGuest && loc == '/home') return '/login';
     if (isLoggedIn && (loc == '/login' || loc == '/signup')) return '/home';
 
     return null;
@@ -83,26 +86,21 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/apod-detail',
       builder: (context, state) {
-        final apod = state.extra as ApodEntity;
+        final extra = state.extra as Map<String, dynamic>;
+        final apods = extra['apods'] as List<ApodEntity>;
+        final index = extra['index'] as int;
         return BlocProvider(
-          create: (_) => sl<SavedBloc>(),
-          child: ApodDetailPage(apod: apod),
+          create: (_) => sl<SavedBloc>()..add(const LoadSavedItemsEvent()),
+          child: ApodDetailPage(apods: apods, initialIndex: index),
         );
       },
     ),
     GoRoute(
       path: '/saved',
-      builder: (context, state) {
-        final uid = FirebaseAuth.instance.currentUser?.uid;
-        return BlocProvider(
-          create: (_) {
-            final bloc = sl<SavedBloc>();
-            if (uid != null) bloc.add(LoadSavedItemsEvent(uid));
-            return bloc;
-          },
-          child: const SavedPage(),
-        );
-      },
+      builder: (context, state) => BlocProvider(
+        create: (_) => sl<SavedBloc>()..add(const LoadSavedItemsEvent()),
+        child: const SavedPage(),
+      ),
     ),
     GoRoute(
       path: '/mars',

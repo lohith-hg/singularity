@@ -5,5 +5,5 @@ class GetSavedItems {
   final SavedRepository _repo;
   GetSavedItems(this._repo);
 
-  Future<List<SavedItemEntity>> call(String uid) => _repo.getSavedItems(uid);
+  Future<List<SavedItemEntity>> call() => _repo.getSavedItems();
 }

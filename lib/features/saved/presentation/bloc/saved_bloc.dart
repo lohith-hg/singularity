@@ -31,7 +31,7 @@ class SavedBloc extends Bloc<SavedEvent, SavedState> {
   ) async {
     emit(const SavedLoading());
     try {
-      final items = await getSavedItems(event.uid);
+      final items = await getSavedItems();
       emit(SavedLoaded(items: items));
     } catch (e) {
       emit(SavedError(e.toString()));
@@ -40,8 +40,8 @@ class SavedBloc extends Bloc<SavedEvent, SavedState> {
 
   Future<void> _onSave(SaveApodEvent event, Emitter<SavedState> emit) async {
     try {
-      await saveApod(event.uid, event.apod);
-      final items = await getSavedItems(event.uid);
+      await saveApod(event.apod);
+      final items = await getSavedItems();
       emit(SavedLoaded(items: items));
     } catch (e) {
       emit(SavedError(e.toString()));
@@ -53,8 +53,8 @@ class SavedBloc extends Bloc<SavedEvent, SavedState> {
     Emitter<SavedState> emit,
   ) async {
     try {
-      await unsaveApod(event.uid, event.apodDate);
-      final items = await getSavedItems(event.uid);
+      await unsaveApod(event.apodDate);
+      final items = await getSavedItems();
       emit(SavedLoaded(items: items));
     } catch (e) {
       emit(SavedError(e.toString()));

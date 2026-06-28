@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../../app/widgets/s_round_btn.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -34,14 +35,7 @@ class _DonkiPageState extends State<DonkiPage> {
               slivers: [
                 SliverToBoxAdapter(child: _buildHeader()),
                 if (state is DonkiLoading || state is DonkiInitial)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.bone,
-                        strokeWidth: 1.5,
-                      ),
-                    ),
-                  )
+                  const SliverToBoxAdapter(child: _DonkiShimmer())
                 else if (state is DonkiError)
                   SliverFillRemaining(
                     child: Center(
@@ -246,6 +240,77 @@ class _DonkiPageState extends State<DonkiPage> {
       ),
     );
   }
+}
+
+class _DonkiShimmer extends StatelessWidget {
+  const _DonkiShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AppColors.ink2,
+      highlightColor: AppColors.ink3,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sp20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Status tile
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: AppColors.ink2,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sp24),
+            // "RECENT EVENTS" label
+            _box(100, 10),
+            const SizedBox(height: AppSpacing.sp16),
+            // Event rows
+            ...List.generate(6, (_) => _eventRow()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _eventRow() => Padding(
+    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sp12),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 44,
+          height: 24,
+          decoration: BoxDecoration(
+            color: AppColors.ink2,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sp12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _box(double.infinity, 13),
+              const SizedBox(height: 6),
+              _box(160, 10),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _box(double width, double height) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: AppColors.ink2,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
 }
 
 class _EventItem extends StatelessWidget {
