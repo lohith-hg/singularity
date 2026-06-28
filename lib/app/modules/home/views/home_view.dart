@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:singularity/app/modules/cosmo_daily/views/cosmo_daily_view.dart';
-import 'package:singularity/app/modules/explore/views/explore_view.dart';
-import 'package:singularity/app/modules/profile/views/profile_view.dart';
-import 'package:singularity/app/modules/sky_stories/views/sky_stories_view.dart';
-import 'package:singularity/app/modules/vintage_space/views/vintage_space_view.dart';
-import '../../../constants/colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../app/widgets/s_nav_bar.dart';
+import '../../../../features/cosmo_daily/presentation/bloc/cosmo_daily_bloc.dart';
+import '../../../../features/cosmo_daily/presentation/pages/cosmo_daily_page.dart';
+import '../../../../features/mars_rover/presentation/bloc/mars_rover_bloc.dart';
+import '../../../../features/mars_rover/presentation/pages/mars_rover_page.dart';
+import '../../../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../../../features/profile/presentation/pages/profile_page.dart';
+import '../../../../features/saved/presentation/bloc/saved_bloc.dart';
+import '../../../../features/vintage_space/presentation/bloc/vintage_space_bloc.dart';
+import '../../../../features/vintage_space/presentation/pages/vintage_space_page.dart';
+import '../../../../injection_container.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -16,76 +21,48 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 0;
-  static List<Widget> screens = <Widget>[
-    const CosmoDailyView(),
-    SkyStoriesView(),
-    VintageSpaceView(),
-    const ExploreView(),
-    ProfileView(),
-    //const ExploreScreen(),
-  ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      // 0 — Today
+      BlocProvider(
+        create: (_) => sl<CosmoDailyBloc>(),
+        child: const CosmoDailyPage(),
+      ),
+      // 1 — Mars
+      BlocProvider(
+        create: (_) => sl<MarsRoverBloc>()..add(LoadAllRoversEvent()),
+        child: const MarsRoverPage(),
+      ),
+      // 2 — Vault
+      BlocProvider(
+        create: (_) => sl<VintageSpaceBloc>()..add(LoadVintageSpaceEvent()),
+        child: const VintageSpacePage(embedded: true),
+      ),
+      // 3 — Me
+      BlocProvider(
+        create: (_) => sl<ProfileBloc>(),
+        child: const ProfilePage(),
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: screens.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: primaryColor,
-        selectedLabelStyle: TextStyle(
-            color: Colors.grey.shade200,
-            fontSize: 14,
-            fontFamily: GoogleFonts.titilliumWeb().fontFamily),
-        unselectedLabelStyle: TextStyle(
-            color: Colors.grey.shade200,
-            fontSize: 14,
-            fontFamily: GoogleFonts.titilliumWeb().fontFamily),
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.public,
-            ),
-            backgroundColor: Colors.black,
-            label: 'Cosmo Daily',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article),
-            backgroundColor: Colors.black,
-            label: 'Sky Stories',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.camera,
-            ),
-            backgroundColor: Colors.black,
-            label: 'Vintage Space',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.explore_outlined,
-            ),
-            backgroundColor: Colors.black,
-            label: 'Explore',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.account_circle,
-            ),
-            backgroundColor: Colors.black,
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Colors.white,
-        onTap: _onItemTapped,
+    return BlocProvider(
+      create: (_) => sl<SavedBloc>()..add(const LoadSavedItemsEvent()),
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0A0A0F),
+        extendBody: true,
+        body: IndexedStack(index: _selectedIndex, children: _screens),
+        bottomNavigationBar: SNavBar(
+          selectedIndex: _selectedIndex,
+          onTap: (i) => setState(() => _selectedIndex = i),
+        ),
       ),
     );
   }

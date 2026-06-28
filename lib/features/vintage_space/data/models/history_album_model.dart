@@ -1,0 +1,75 @@
+import '../../domain/entities/nasa_image_entity.dart';
+
+class HistoryAlbumModel {
+  final String? title;
+  final String? description;
+  final String? imageUrl;
+  final DateTime? dateCreated;
+
+  const HistoryAlbumModel({
+    this.title,
+    this.description,
+    this.imageUrl,
+    this.dateCreated,
+  });
+
+  factory HistoryAlbumModel.fromJson(Map<String, dynamic> json) {
+    final dataList = json['data'] as List<dynamic>?;
+    final linksList = json['links'] as List<dynamic>?;
+
+    final data = dataList?.isNotEmpty == true
+        ? dataList!.first as Map<String, dynamic>
+        : null;
+    Map<String, dynamic>? link;
+    for (final rawLink in linksList ?? const []) {
+      if (rawLink is! Map<String, dynamic>) continue;
+      if (rawLink['render'] == 'image' || rawLink['href'] != null) {
+        link = rawLink;
+        break;
+      }
+    }
+
+    return HistoryAlbumModel(
+      title: data?['title'] as String?,
+      description: data?['description'] as String?,
+      imageUrl: link?['href'] as String?,
+      dateCreated: data?['date_created'] != null
+          ? DateTime.tryParse(data!['date_created'] as String)
+          : null,
+    );
+  }
+
+  /// Deserialise from the flat cached format written by [toJson].
+  factory HistoryAlbumModel.fromCached(Map<String, dynamic> json) =>
+      HistoryAlbumModel(
+        title: json['title'] as String?,
+        description: json['description'] as String?,
+        imageUrl: json['imageUrl'] as String?,
+        dateCreated: json['dateCreated'] != null
+            ? DateTime.tryParse(json['dateCreated'] as String)
+            : null,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'description': description,
+        'imageUrl': imageUrl,
+        'dateCreated': dateCreated?.toIso8601String(),
+      };
+
+  // Returns null if the item lacks required fields — filtered out in the repository.
+  NasaImageEntity? toEntity() {
+    if (title == null ||
+        description == null ||
+        imageUrl == null ||
+        dateCreated == null) {
+      return null;
+    }
+    return NasaImageEntity(
+      title: title!,
+      description: description!,
+      imageUrl: imageUrl!,
+      dateCreated: dateCreated!,
+    );
+  }
+}
