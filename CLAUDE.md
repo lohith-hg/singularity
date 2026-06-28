@@ -38,7 +38,7 @@ lib/
   core/
     constants/              ← colours, topics, API URLs
     network/api_client.dart ← shared HTTP wrapper (15s timeout, retry on 429/5xx)
-    services/               ← CacheService (Hive/TTL), OnboardingService (SharedPrefs)
+    services/               ← CacheService (Hive/TTL + SWR), CachedResource, GuestSession, OnboardingService (SharedPrefs)
     theme/                  ← AppColors, AppTypography, AppSpacing, AppRadii, AppTheme
     error/exceptions.dart   ← typed exceptions (ServerException, AuthException, …)
     router/app_router.dart  ← GoRouter config + auth guard
@@ -70,7 +70,9 @@ AppColors.good     // green (#7FB069)
 
 **`ApiClient`** (`core/network/api_client.dart`): shared HTTP wrapper used by all remote datasources. Handles 15s timeout, 1 automatic retry on 429/5xx, and maps status codes to `ServerException` messages. NASA API key is read via `NasaApi.apiKey` which picks up `--dart-define=NASA_API_KEY=…` or falls back to a bundled demo key.
 
-**`CacheService`** (`core/services/cache_service.dart`): Hive-backed TTL cache initialised before `runApp`. Default TTL is 24h; per-call override available. Use `invalidatePrefix('feature_')` to purge a feature's entire cache. Registered as a singleton via `sl<CacheService>()`.
+**`CacheService`** (`core/services/cache_service.dart`): Hive-backed cache initialised before `runApp`, registered as a singleton via `sl<CacheService>()`. `read(key, ttl)` returns a `CacheRead` (cached JSON + an `isStale` flag). On top of that it exposes **stale-while-revalidate** helpers — `swr<T>(...)` (single response) and `swrComposed<T>(...)` (several responses merged) — which return a `CachedResource<T>` (`core/services/cached_resource.dart`). Use `invalidatePrefix('feature_')` to purge a feature's cache.
+
+**SWR pattern (all NASA features):** remote datasources return a `CachedResource<T>`, not a raw `Future`. The BLoC emits the cached value instantly if present, then emits again with fresh data once the background refresh resolves — so the loading spinner only appears on first launch. Per-feature TTLs range 12h–7d.
 
 ### Dependency injection
 
@@ -83,31 +85,32 @@ sl<ApodRepository>()   // returns the singleton
 
 ### Routing and auth guard
 
-`lib/core/router/app_router.dart` defines the two top-level routes (`/auth`, `/home`) and an `_AuthRefreshStream` that wraps `FirebaseAuth.instance.authStateChanges()`. GoRouter's `refreshListenable` calls the redirect on every Firebase auth event — no manual navigation is needed; sign-in and sign-out redirect automatically.
+`lib/core/router/app_router.dart` defines all routes: auth screens (`/splash`, `/onboarding`, `/login`, `/signup`, `/forgot`), the tab shell (`/home`), and the secondary feature routes (`/mars`, `/epic`, `/iss`, `/neo`, `/exoplanets`, `/donki`, `/library`, `/search`, `/saved`, `/apod-detail`, `/privacy`).
 
-`AuthBloc` is provided once at the root (above `MaterialApp.router`) so it is accessible from both `/auth` and `/home`.
+The guard is GoRouter's `redirect` + a `refreshListenable` that **merges two `ChangeNotifier`s**: `_AuthRefreshStream` (wraps `FirebaseAuth.instance.authStateChanges()`) and `GuestSession` (`core/services/guest_session.dart`, a singleton "browse without an account" flag). `/home` is allowed when the user is logged in **or** a guest; sign-in/out and toggling guest mode redirect automatically — no manual navigation.
+
+`AuthBloc` is provided once at the root (above `MaterialApp.router`) so it is accessible everywhere.
 
 ### BLoC scoping
 
-HomeView has 5 tabs: **Cosmo Daily → Explore → Tracker → Mars Rover → Profile**. The Tracker tab is a nested `StatefulWidget` (`TrackerPage`) with two sub-tabs: *ISS* and *Earth (EPIC)*.
+HomeView has 4 tabs: **Today (`CosmoDailyPage`) → Mars (`MarsRoverPage`) → Vault (`VintageSpacePage`, embedded) → Me (`ProfilePage`)** — an `IndexedStack` driven by `SNavBar`. Each tab's BLoC is created in `HomeView.initState` via `BlocProvider(create: (_) => sl<XBloc>(), child: XPage())`, scoped to the page. `SavedBloc` is provided at the `HomeView` root (used by both Profile's stats and the `/saved` page). `AuthBloc` is global (root).
 
-Each tab's BLoC is created inside `HomeView.initState` via `BlocProvider(create: (_) => sl<XBloc>(), child: XPage())`, scoped to the page. `SavedBloc` is provided at `HomeView` level (not a nav tab). `AuthBloc` is global (root). `ProfileBloc` is provided inside `HomeView`.
+The other NASA features (NEO, DONKI, Exoplanets, EPIC, ISS) are **not** tabs — they are pushed `go_router` routes, each scoping its BLoC in the `GoRoute` builder.
 
 ### Features overview
 
 | Feature | Data source | Notes |
 |---|---|---|
-| `cosmo_daily` | NASA APOD REST API | `ApodEntity` lives in `features/shared/entities/` |
-| `vintage_space` | NASA Image Library API | Parallel `Future.wait` fetch |
-| `explore` | Static in-memory data | Planets + articles bundled in `explore_local_datasource.dart` |
-| `profile` | Firestore `users/{uid}` | `UserEntity` has `copyWith`; shared with `auth` |
-| `auth` | Firebase Auth + Firestore | `AuthBloc` subscribes to `authStateChanges()` stream on construction |
-| `mars_rover` | NASA Mars Rover Photos API | Photos per rover/sol; uses `CacheService` (24h TTL) |
-| `epic` | NASA EPIC API | Earth imagery; embedded in Tracker tab (Earth sub-tab) |
-| `iss_tracker` | Open Notify API | Live ISS position; embedded in Tracker tab (ISS sub-tab) |
-| `neo` | NASA NeoWs API | Near-Earth object data |
-| `exoplanets` | NASA Exoplanet Archive TAP | SQL-like TAP/sync endpoint |
-| `donki` | NASA DONKI API | Space weather events |
+| `cosmo_daily` | NASA APOD REST API | **Today** tab; `ApodEntity` in `features/shared/entities/`. Video APODs play **inline** in `apod_detail_page` (`youtube_player_iframe`, with a `webview_flutter` fallback for non-YouTube embeds) |
+| `mars_rover` | NASA Image & Video Library — `images-api.nasa.gov/search?q=<rover> rover mars` | **Mars** tab. **Not** the Mars Rover Photos API; it's a keyword search, so results include non-surface imagery. 24h SWR cache |
+| `vintage_space` | NASA Image Library API | **Vault** tab (the Archive); parallel `Future.wait` over random topics. Cards open `vintage_image_detail_page` |
+| `profile` | Firestore `users/{uid}` | **Me** tab; `UserEntity` has `copyWith`; shared with `auth` |
+| `auth` | Firebase Auth + Firestore | `AuthBloc` subscribes to `authStateChanges()` on construction; guest mode via `GuestSession` |
+| `epic` | NASA EPIC API | Earth imagery; standalone `/epic` route (`embedded` flag retained) |
+| `iss_tracker` | Open Notify API | Live ISS position; standalone `/iss` route |
+| `neo` | NASA NeoWs API | Near-Earth objects; `/neo` route |
+| `exoplanets` | NASA Exoplanet Archive TAP | SQL-like TAP/sync endpoint; `/exoplanets` route |
+| `donki` | NASA DONKI API | Space weather events; `/donki` route |
 | `saved` | Firestore `users/{uid}/saved` | Saved APODs; `SavedBloc` global within `HomeView` |
 
 ### Error handling
