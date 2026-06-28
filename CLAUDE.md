@@ -68,7 +68,7 @@ AppColors.good     // green (#7FB069)
 
 ### Core services
 
-**`ApiClient`** (`core/network/api_client.dart`): shared HTTP wrapper used by all remote datasources. Handles 15s timeout, 1 automatic retry on 429/5xx, and maps status codes to `ServerException` messages. NASA API key is read via `NasaApi.apiKey` which picks up `--dart-define=NASA_API_KEY=…` or falls back to a bundled demo key.
+**`ApiClient`** (`core/network/api_client.dart`): shared HTTP wrapper used by all remote datasources. Handles 15s timeout, 1 automatic retry on 429/5xx, and maps status codes to `ServerException` messages. NASA API key is read via `NasaApi.apiKey`. Supply it through the gitignored `.env` (`--dart-define-from-file=.env`) or `--dart-define=NASA_API_KEY=…`; with neither, it falls back to NASA's public, rate-limited `DEMO_KEY`. Never hardcode a real key in source.
 
 **`CacheService`** (`core/services/cache_service.dart`): Hive-backed cache initialised before `runApp`, registered as a singleton via `sl<CacheService>()`. `read(key, ttl)` returns a `CacheRead` (cached JSON + an `isStale` flag). On top of that it exposes **stale-while-revalidate** helpers — `swr<T>(...)` (single response) and `swrComposed<T>(...)` (several responses merged) — which return a `CachedResource<T>` (`core/services/cached_resource.dart`). Use `invalidatePrefix('feature_')` to purge a feature's cache.
 
